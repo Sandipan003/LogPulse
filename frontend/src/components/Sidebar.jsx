@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Clock, HardDrive, Inbox, Settings, Loader2, Database } from 'lucide-react';
 
-export default function Sidebar({ onSelectSession, activeSessionId, activeView, onNavigate }) {
+export default function Sidebar({ onSelectSession, activeSessionId, activeView, onNavigate, isOpen, onClose }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,25 +39,34 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
   }, []);
 
   return (
-    <aside className="w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col pt-6 hidden md:flex shrink-0">
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-in fade-in"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col pt-6 shrink-0 transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       
       <div className="px-6 pb-6 border-b border-zinc-800/50 mb-4">
         <h2 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Workspace</h2>
         <nav className="space-y-1">
           <button 
-            onClick={() => onNavigate('upload')}
+            onClick={() => { onNavigate('upload'); onClose?.(); }}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'upload' || activeView === 'dashboard' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
             <Inbox className="w-5 h-5 text-brand-400" />
             <span className="font-bold">New Analysis</span>
           </button>
           <button 
-            onClick={() => onNavigate('history')}
+            onClick={() => { onNavigate('history'); onClose?.(); }}
             className={`w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'history' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
             <Database className="w-5 h-5 text-brand-400" />
             <span className="font-bold">MySQL History</span>
           </button>
           <button 
-            onClick={() => onNavigate('settings')}
+            onClick={() => { onNavigate('settings'); onClose?.(); }}
             className={`w-full justify-start flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'settings' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
             <Settings className="w-5 h-5" />
             <span className="font-bold">Settings</span>
@@ -107,6 +116,7 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
                   onClick={() => {
                      onSelectSession(item._id);
                      onNavigate('dashboard');
+                     onClose?.();
                   }}
                   className={`group cursor-pointer p-2.5 -mx-2.5 rounded-lg transition-all duration-200 ${(activeSessionId === item._id && activeView === 'dashboard') ? 'bg-brand-500/10 border border-brand-500/30' : 'hover:bg-zinc-800/50'}`}
                 >
@@ -138,5 +148,6 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
         </div>
       </div>
     </aside>
+    </>
   );
 }

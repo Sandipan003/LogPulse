@@ -65,7 +65,7 @@ export default function SeverityChart({ summary }) {
   return (
     <div className="relative h-full w-full flex items-center justify-center">
       <Doughnut data={data} options={options} />
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-10">
         <span className="text-3xl font-black text-white">{summary.totalLogs.toLocaleString()}</span>
         <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">Total Logs</span>
       </div>

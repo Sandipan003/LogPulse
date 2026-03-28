@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
-import { Activity, LayoutDashboard, BrainCircuit, SearchCode, Database, Settings as SettingsIcon, Trash2, HardDrive, Download, Search } from 'lucide-react';
+import { Activity, LayoutDashboard, BrainCircuit, SearchCode, Database, Settings as SettingsIcon, Trash2, HardDrive, Download, Search, Menu, X } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import UploadZone from './components/UploadZone';
 import TimelineChart from './components/TimelineChart';
@@ -12,6 +12,7 @@ function App() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // High-level navigation view
   const [activeView, setActiveView] = useState('upload'); // 'upload', 'dashboard', 'history', 'settings'
@@ -205,22 +206,32 @@ function App() {
         activeSessionId={analysisResult?._id}
         activeView={activeView}
         onNavigate={setActiveView}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
       
       <main className="flex-1 overflow-y-auto w-full relative pb-20">
-        <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800/80 p-5 px-10 flex justify-between items-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-          <div className="flex items-center gap-4">
-            <div className="bg-brand-500/20 p-2.5 rounded-xl border border-brand-500/30">
-              <Activity className="w-7 h-7 text-brand-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">LogPulse Engine</h1>
-              <p className="text-sm text-zinc-400 font-bold tracking-widest uppercase mt-0.5">MySQL Persistent Edition</p>
+        <header className="sticky top-0 z-30 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800/80 p-4 md:p-5 md:px-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <div className="w-full md:w-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)} 
+                className="md:hidden p-2 text-zinc-400 hover:text-white bg-zinc-900 rounded-lg border border-zinc-800 transition"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <div className="bg-brand-500/20 p-2 md:p-2.5 rounded-xl border border-brand-500/30">
+                <Activity className="w-6 h-6 md:w-7 md:h-7 text-brand-400" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">LogPulse Engine</h1>
+                <p className="text-[10px] md:text-sm text-zinc-400 font-bold tracking-widest uppercase mt-0.5">MySQL Persistent Edition</p>
+              </div>
             </div>
           </div>
           
           {activeView === 'dashboard' && analysisResult && (
-            <div className="flex p-1 bg-zinc-900/80 rounded-xl border border-zinc-800/50">
+            <div className="flex w-full md:w-auto overflow-x-auto p-1 bg-zinc-900/80 rounded-xl border border-zinc-800/50 custom-scrollbar mb-2 md:mb-0">
               {[
                 { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
                 { id: 'deepdive', label: 'Deep Dive', icon: SearchCode },
@@ -232,7 +243,7 @@ function App() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${isActive ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30'}`}
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 ${isActive ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30'}`}
                   >
                     <Icon className={`w-4 h-4 ${isActive ? 'text-brand-400' : ''}`} />
                     {tab.label}
@@ -278,35 +289,35 @@ function App() {
 
           {activeView === 'dashboard' && analysisResult && (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-zinc-800">
-                <div className="space-y-1">
-                  <h2 className="text-3xl font-black tracking-tight text-white flex items-center gap-3">
+              <div className="flex items-center justify-between mb-6 md:mb-8 pb-4 md:pb-6 border-b border-zinc-800">
+                <div className="space-y-1 w-full min-w-0">
+                  <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-3 truncate">
                     {analysisResult.fileName}
                   </h2>
-                  <p className="text-zinc-400 font-mono text-sm">
-                    Analyzed on {new Date(analysisResult.uploadDate).toLocaleString()} (Document ID: {analysisResult._id})
+                  <p className="text-zinc-400 font-mono text-xs md:text-sm truncate">
+                    Analyzed on {new Date(analysisResult.uploadDate).toLocaleString()} <span className="hidden sm:inline">(Document ID: {analysisResult._id})</span>
                   </p>
                 </div>
               </div>
 
               {activeTab === 'dashboard' && (
-                <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                  <div className="grid grid-cols-4 gap-6">
-                    <div className="glass-card p-6 border-t-2 border-t-zinc-600/50">
-                      <div className="text-zinc-400 text-sm font-bold uppercase tracking-widest mb-2">Logs Digested</div>
-                      <div className="text-4xl font-black text-white">{analysisResult.summary.totalLogs.toLocaleString()}</div>
+                <div className="space-y-6 md:space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+                    <div className="glass-card p-4 md:p-6 border-t-2 border-t-zinc-600/50">
+                      <div className="text-zinc-400 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-1 md:mb-2 truncate">Logs Digested</div>
+                      <div className="text-2xl md:text-4xl font-black text-white">{analysisResult.summary.totalLogs.toLocaleString()}</div>
                     </div>
-                    <div className="glass-card p-6 border-t-2 border-t-red-500/80 bg-red-500/5">
-                      <div className="text-red-400 text-sm font-bold uppercase tracking-widest mb-2">Errors</div>
-                      <div className="text-4xl font-black text-red-400">{analysisResult.summary.errorCount.toLocaleString()}</div>
+                    <div className="glass-card p-4 md:p-6 border-t-2 border-t-red-500/80 bg-red-500/5">
+                      <div className="text-red-400 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-1 md:mb-2 truncate">Errors</div>
+                      <div className="text-2xl md:text-4xl font-black text-red-400">{analysisResult.summary.errorCount.toLocaleString()}</div>
                     </div>
-                    <div className="glass-card p-6 border-t-2 border-t-amber-500/80 bg-amber-500/5">
-                      <div className="text-amber-500 text-sm font-bold uppercase tracking-widest mb-2">Warnings</div>
-                      <div className="text-4xl font-black text-amber-500">{analysisResult.summary.warnCount.toLocaleString()}</div>
+                    <div className="glass-card p-4 md:p-6 border-t-2 border-t-amber-500/80 bg-amber-500/5">
+                      <div className="text-amber-500 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-1 md:mb-2 truncate">Warnings</div>
+                      <div className="text-2xl md:text-4xl font-black text-amber-500">{analysisResult.summary.warnCount.toLocaleString()}</div>
                     </div>
-                    <div className="glass-card p-6 border-t-2 border-t-indigo-500/80 bg-brand-500/5">
-                      <div className="text-brand-400 text-sm font-bold uppercase tracking-widest mb-2">Unstructured</div>
-                      <div className="text-4xl font-black text-brand-400">{analysisResult.summary.unstructuredCount?.toLocaleString() || 0}</div>
+                    <div className="glass-card p-4 md:p-6 border-t-2 border-t-indigo-500/80 bg-brand-500/5">
+                      <div className="text-brand-400 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-1 md:mb-2 truncate">Unstructured</div>
+                      <div className="text-2xl md:text-4xl font-black text-brand-400">{analysisResult.summary.unstructuredCount?.toLocaleString() || 0}</div>
                     </div>
                   </div>
 
@@ -417,49 +428,91 @@ function App() {
                </div>
 
                <div className="glass-panel overflow-hidden">
-                 <table className="w-full text-left border-collapse">
-                   <thead>
-                     <tr className="bg-zinc-900/80 border-b border-zinc-800">
-                       <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Target Log</th>
-                       <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Upload Date</th>
-                       <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Total Rows</th>
-                       <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Root Cause</th>
-                       <th className="p-5 text-right font-black text-zinc-400 uppercase tracking-widest">Actions</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-zinc-800/50">
-                     {historyData.map(item => (
-                       <tr key={item._id} className="hover:bg-zinc-800/30 transition border-zinc-800/40">
-                         <td className="p-5">
-                            <div className="flex items-center gap-3">
-                               <div className="bg-brand-500/20 p-2 rounded-lg"><HardDrive className="w-5 h-5 text-brand-400"/></div>
-                               <span className="font-bold text-white">{item.fileName}</span>
-                            </div>
-                         </td>
-                         <td className="p-5 font-mono text-sm text-zinc-400">{new Date(item.uploadDate).toLocaleString()}</td>
-                         <td className="p-5 font-black text-zinc-300">{item.stats?.totalLogs?.toLocaleString() || 0}</td>
-                         <td className="p-5">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${item.aiSummary?.rootCause === 'No Critical Issues Detected' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-400'}`}>
-                               {item.aiSummary?.rootCause || 'Unstructured Data Anomaly'}
-                            </span>
-                         </td>
-                         <td className="p-5 text-right">
-                           <div className="flex items-center justify-end gap-3">
-                              <button onClick={() => handleFetchSession(item._id)} className="px-5 py-2 bg-brand-500 hover:bg-brand-400 text-white text-sm font-bold rounded-lg shadow-lg shadow-brand-500/20 transition hover:-translate-y-0.5">
-                                Load View
-                              </button>
-                              <button onClick={(e) => handleDeleteIndividualRow(item._id, e)} className="p-2.5 text-red-500 bg-red-500/10 hover:bg-red-500/20 hover:text-red-400 transition rounded-lg border border-red-500/20">
-                                 <Trash2 className="w-5 h-5" />
-                              </button>
-                           </div>
-                         </td>
+                 {/* Desktop Table View */}
+                 <div className="hidden md:block overflow-x-auto custom-scrollbar">
+                   <table className="w-full text-left border-collapse min-w-[800px]">
+                     <thead>
+                       <tr className="bg-zinc-900/80 border-b border-zinc-800">
+                         <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Target Log</th>
+                         <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Upload Date</th>
+                         <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Total Rows</th>
+                         <th className="p-5 text-sm font-black text-zinc-400 uppercase tracking-widest">Root Cause</th>
+                         <th className="p-5 text-right font-black text-zinc-400 uppercase tracking-widest">Actions</th>
                        </tr>
-                     ))}
-                     {historyData.length === 0 && (
-                       <tr><td colSpan="5" className="p-10 text-center text-zinc-500 font-medium">No history found in database.</td></tr>
-                     )}
-                   </tbody>
-                 </table>
+                     </thead>
+                     <tbody className="divide-y divide-zinc-800/50">
+                       {historyData.map(item => (
+                         <tr key={item._id} className="hover:bg-zinc-800/30 transition border-zinc-800/40">
+                           <td className="p-5">
+                              <div className="flex items-center gap-3">
+                                 <div className="bg-brand-500/20 p-2 rounded-lg"><HardDrive className="w-5 h-5 text-brand-400"/></div>
+                                 <span className="font-bold text-white">{item.fileName}</span>
+                              </div>
+                           </td>
+                           <td className="p-5 font-mono text-sm text-zinc-400">{new Date(item.uploadDate).toLocaleString()}</td>
+                           <td className="p-5 font-black text-zinc-300">{item.stats?.totalLogs?.toLocaleString() || 0}</td>
+                           <td className="p-5">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${item.aiSummary?.rootCause === 'No Critical Issues Detected' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-400'}`}>
+                                 {item.aiSummary?.rootCause || 'Unstructured Data Anomaly'}
+                              </span>
+                           </td>
+                           <td className="p-5 text-right">
+                             <div className="flex items-center justify-end gap-3">
+                                <button onClick={() => handleFetchSession(item._id)} className="px-5 py-2 bg-brand-500 hover:bg-brand-400 text-white text-sm font-bold rounded-lg shadow-lg shadow-brand-500/20 transition hover:-translate-y-0.5">
+                                  Load View
+                                </button>
+                                <button onClick={(e) => handleDeleteIndividualRow(item._id, e)} className="p-2.5 text-red-500 bg-red-500/10 hover:bg-red-500/20 hover:text-red-400 transition rounded-lg border border-red-500/20">
+                                   <Trash2 className="w-5 h-5" />
+                                </button>
+                             </div>
+                           </td>
+                         </tr>
+                       ))}
+                       {historyData.length === 0 && (
+                         <tr><td colSpan="5" className="p-10 text-center text-zinc-500 font-medium">No history found in database.</td></tr>
+                       )}
+                     </tbody>
+                   </table>
+                 </div>
+
+                 {/* Mobile Cards View */}
+                 <div className="md:hidden flex flex-col divide-y divide-zinc-800/50">
+                   {historyData.map(item => (
+                     <div key={item._id} className="p-5 space-y-4 hover:bg-zinc-800/30 transition">
+                       <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                         <div className="flex items-center gap-3">
+                            <div className="bg-brand-500/20 p-2 rounded-lg"><HardDrive className="w-5 h-5 text-brand-400"/></div>
+                            <span className="font-bold text-white tracking-wide truncate max-w-[140px]">{item.fileName}</span>
+                         </div>
+                         <span className="font-mono text-[10px] text-zinc-500">{new Date(item.uploadDate).toLocaleDateString()}</span>
+                       </div>
+                       
+                       <div className="flex justify-between items-center text-sm">
+                          <span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Total Rows</span>
+                          <span className="font-black text-zinc-300">{item.stats?.totalLogs?.toLocaleString() || 0}</span>
+                       </div>
+
+                       <div className="flex justify-between items-center text-sm">
+                          <span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Root Cause</span>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${item.aiSummary?.rootCause === 'No Critical Issues Detected' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-400'} max-w-[140px] truncate`}>
+                            {item.aiSummary?.rootCause || 'Unstructured Data Anomaly'}
+                          </span>
+                       </div>
+
+                       <div className="pt-2 flex items-center justify-between gap-3">
+                          <button onClick={(e) => handleDeleteIndividualRow(item._id, e)} className="p-2.5 text-red-500 bg-red-500/10 hover:bg-red-500/20 hover:text-red-400 transition rounded-lg border border-red-500/20">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => handleFetchSession(item._id)} className="flex-1 py-2.5 bg-brand-500 hover:bg-brand-400 text-white text-sm font-bold rounded-lg transition text-center shadow-lg shadow-brand-500/20">
+                            Load View
+                          </button>
+                       </div>
+                     </div>
+                   ))}
+                   {historyData.length === 0 && (
+                     <div className="p-10 text-center text-zinc-500 font-medium">No history found in database.</div>
+                   )}
+                 </div>
                </div>
              </div>
           )}

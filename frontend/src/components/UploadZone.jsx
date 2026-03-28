@@ -67,7 +67,7 @@ export default function UploadZone({ onUpload, isProcessing }) {
          </button>
       </div>
 
-      <div className="p-12">
+      <div className="p-6 md:p-12">
         {isProcessing ? (
           <div className="flex flex-col items-center justify-center py-10 animate-in zoom-in-95 duration-500">
             <div className="relative">
@@ -98,7 +98,7 @@ export default function UploadZone({ onUpload, isProcessing }) {
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 className={`
-                  flex flex-col items-center justify-center py-14 px-4 
+                  flex flex-col items-center justify-center py-10 md:py-14 px-4 
                   border-2 border-dashed rounded-2xl cursor-pointer 
                   transition-all duration-300
                   ${isHovered 
@@ -113,8 +113,8 @@ export default function UploadZone({ onUpload, isProcessing }) {
                   <UploadCloud className="w-10 h-10" />
                 </div>
                 
-                <h3 className="text-2xl font-black text-white mb-2 selection:bg-brand-500/30">Drop your server file here</h3>
-                <p className="text-zinc-500 font-medium mb-8">Securely processes massive structural logs locally without crashing.</p>
+                <h3 className="text-xl md:text-2xl font-black text-white mb-2 selection:bg-brand-500/30">Drop your server file here</h3>
+                <p className="text-zinc-500 font-medium mb-8 text-sm md:text-base text-center">Securely processes massive structural logs locally without crashing.</p>
                 
                 <div className="flex gap-4">
                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-widest"><FileText className="w-3.5 h-3.5 text-brand-500" /> .log</span>
@@ -135,7 +135,7 @@ export default function UploadZone({ onUpload, isProcessing }) {
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
                     placeholder="Paste your terrifying application crash logs in here... [Supports Raw Apache, Multi-line traces, JSON]"
-                    className="w-full h-64 bg-zinc-950 text-brand-100 font-mono text-xs p-6 rounded-2xl border border-zinc-800 focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 outline-none resize-none shadow-inner custom-scrollbar"
+                    className="w-full h-48 md:h-64 bg-zinc-950 text-brand-100 font-mono text-xs p-4 md:p-6 rounded-2xl border border-zinc-800 focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 outline-none resize-none shadow-inner custom-scrollbar"
                  ></textarea>
                  <button 
                    onClick={handlePasteSubmit}

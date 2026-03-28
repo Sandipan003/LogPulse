@@ -1,7 +1,49 @@
 import { BrainCircuit, Link2Off, Eye, Lightbulb, Workflow } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AnalysisPanel({ aiSummary }) {
   if (!aiSummary) return null;
+
+  const handleGenerateScript = () => {
+    if (!aiSummary || !aiSummary.recommendedFix) return;
+
+    const scriptHeader = `#!/bin/bash
+# ==============================================================================
+# LogPulse Auto-Fix Script
+# Generated: ${new Date().toISOString()}
+# Root Cause: ${aiSummary.rootCause}
+# ==============================================================================
+
+echo "Initializing LogPulse Remediation Protocol..."
+echo "Targeting: ${aiSummary.impact}"
+echo ""
+`;
+    
+    const scriptBody = aiSummary.recommendedFix.split('\n')
+      .filter(step => step.trim())
+      .map((step, idx) => {
+        const cleanStep = step.replace(/^\d+\.\s*/, '');
+        return `# Step ${idx + 1}: ${cleanStep}\necho "-> Executing: ${cleanStep}..."\n# TODO: Add specific CLI remediation commands here\nsleep 1\n`;
+      })
+      .join('\n');
+
+    const scriptFooter = `\necho ""\necho "Remediation Script Execution Complete."\n`;
+    
+    const fullScript = scriptHeader + scriptBody + scriptFooter;
+
+    const blob = new Blob([fullScript], { type: 'text/x-sh' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = aiSummary.rootCause.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    a.download = `logpulse_remediation_${safeName}.sh`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success("Auto-Fix Bash Script Generated!");
+  };
 
   return (
     <div className="h-full flex flex-col justify-between space-y-6">
@@ -69,7 +111,7 @@ export default function AnalysisPanel({ aiSummary }) {
 
       </div>
 
-      <button className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 group">
+      <button onClick={handleGenerateScript} className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 group cursor-pointer">
         <Workflow className="w-4 h-4 opacity-80 group-hover:rotate-12 transition-transform" />
         Generate Auto-Fix Script
       </button>
