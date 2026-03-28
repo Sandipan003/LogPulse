@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Rocket, ShieldCheck, Zap, BarChart3, ArrowRight, Layers, Database, Activity, SearchCode, Inbox, BrainCircuit } from 'lucide-react';
+import { Rocket, ShieldCheck, Zap, BarChart3, ArrowRight, Layers, Database, Activity, SearchCode, Inbox, BrainCircuit, Download } from 'lucide-react';
 import UploadZone from './UploadZone';
 
 export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessing }) {
@@ -60,12 +60,20 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
               >
                 Launch Engine
               </button>
+              <a 
+                href="/ai-log-analyzer.vsix"
+                download="ai-log-analyzer.vsix"
+                className="w-full sm:w-auto px-8 py-3 md:py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all text-sm md:text-base flex items-center justify-center gap-2"
+              >
+                <Download className="w-5 h-5 text-brand-400" />
+                VSIX Extension
+              </a>
               <button 
                 onClick={() => {
                   const section = document.getElementById('precision-section');
                   if (section) section.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full sm:w-auto px-8 py-3 md:py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all text-sm md:text-base"
+                className="w-full sm:w-auto px-8 py-3 md:py-4 bg-zinc-800/20 hover:bg-zinc-800/40 text-zinc-400 hover:text-white font-bold rounded-xl border border-zinc-800 transition-all text-sm md:text-base"
               >
                 View Features
               </button>
