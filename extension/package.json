@@ -1,0 +1,69 @@
+{
+  "name": "ai-log-analyzer",
+  "displayName": "AI Log Analyzer",
+  "description": "High-fidelity local log analysis with pattern clustering and timeline visualization.",
+  "version": "1.0.0",
+  "publisher": "logpulse",
+  "icon": "media/icon.svg",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ai-log-analyzer.analyzeFile",
+        "title": "Analyze Logs with AI LogPulse"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "ai-log-analyzer.analyzeFile",
+          "when": "resourceExtname =~ /\\.(log|txt|json|csv)$/",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "log-insight-explorer",
+          "title": "Log Insight",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "log-insight-explorer": [
+        {
+          "type": "webview",
+          "id": "log-insight-sidebar",
+          "name": "Analysis History"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.5",
+    "@vscode/vsce": "^2.19.0"
+  },
+  "dependencies": {
+    "natural": "^6.2.0",
+    "string-similarity": "^4.0.4",
+    "chart.js": "^4.2.1"
+  }
+}
