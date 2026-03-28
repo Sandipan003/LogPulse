@@ -38,7 +38,7 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 selection:bg-brand-500/30 font-sans relative overflow-hidden">
+    <div className="w-full flex items-center justify-center selection:bg-brand-500/30 font-sans relative overflow-hidden">
       
       {/* Background Ambience Elements */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-brand-500/10 rounded-full blur-[120px] pointer-events-none opacity-50"></div>

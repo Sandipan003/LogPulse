@@ -16,6 +16,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   
   // High-level navigation view
   const [activeView, setActiveView] = useState('home'); // 'home', 'upload', 'dashboard', 'history', 'settings'
@@ -219,15 +220,35 @@ function App() {
     c.severity.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  if (!isAuthenticated) {
+  // Root render logic
+  if (!isAuthenticated && !showLogin) {
     return (
       <>
         <Toaster position="bottom-right" />
+        <Home onGetStarted={() => setShowLogin(true)} onLoginClick={() => setShowLogin(true)} />
+      </>
+    );
+  }
+
+  if (!isAuthenticated && showLogin) {
+    return (
+      <div className="relative min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+        <Toaster position="bottom-right" />
+        <div className="absolute top-6 right-6 z-50">
+           <button 
+             onClick={() => setShowLogin(false)}
+             className="p-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-full border border-zinc-800 transition shadow-2xl"
+           >
+              <X className="w-6 h-6" />
+           </button>
+        </div>
         <Login onLogin={(token) => {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           setIsAuthenticated(true);
+          setShowLogin(false);
+          setActiveView('dashboard');
         }} />
-      </>
+      </div>
     );
   }
 
