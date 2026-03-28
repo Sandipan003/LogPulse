@@ -2,6 +2,8 @@
 .vscode-test/**
 out/test/**
 src/**
+out/**
+node_modules/**
 .gitignore
 .vsls.json
 tsconfig.json
@@ -9,5 +11,5 @@ vsc-extension-quickstart.md
 PUBLISHING_GUIDE.md
 extension_icon_logpulse_*.png
 *.vsix
-node_modules/.bin/**
-node_modules/@types/**
+ai-log-analyzer-*.vsix
+dist/*.map
