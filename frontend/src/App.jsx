@@ -293,6 +293,14 @@ function App() {
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
                 <span className="text-[11px] font-black text-zinc-300 tracking-wider uppercase">SQL Cluster</span>
              </div>
+             
+             <button 
+               onClick={handleLogout}
+               className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl hover:bg-red-500/20 hover:text-red-400 transition-all shadow-lg hover:shadow-red-500/10"
+               title="Logout"
+             >
+                <Database className="w-4 h-4 rotate-180" />
+             </button>
           </div>
         </header>
 

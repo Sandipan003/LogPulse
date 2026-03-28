@@ -441,19 +441,19 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
       },
       {
         label: "Errors",
-        data: sortedBuckets.map(b => timeline[b].errors || 0),
+        data: finalBuckets.map(b => timeline[b].errors || 0),
         borderColor: "#ef4444",
         backgroundColor: "rgba(239, 68, 68, 0.2)"
       },
       {
         label: "Warnings",
-        data: sortedBuckets.map(b => timeline[b].warnings || 0),
+        data: finalBuckets.map(b => timeline[b].warnings || 0),
         borderColor: "#f59e0b",
         backgroundColor: "rgba(245, 158, 11, 0.2)"
       },
       {
         label: "Unstructured",
-        data: sortedBuckets.map(b => timeline[b].unstructured || 0),
+        data: finalBuckets.map(b => timeline[b].unstructured || 0),
         borderColor: "#8b5cf6",
         backgroundColor: "rgba(139, 92, 246, 0.2)"
       }
@@ -552,19 +552,19 @@ app.post('/api/logs/raw', async (req, res) => {
         },
         {
           label: 'Errors',
-          data: labels.map(l => timeline[l].errors || 0),
+          data: finalBuckets.map(l => timeline[l].errors || 0),
           borderColor: 'rgba(239, 68, 68, 0.8)',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
         },
         {
           label: 'Warnings',
-          data: labels.map(l => timeline[l].warnings || 0),
+          data: finalBuckets.map(l => timeline[l].warnings || 0),
           borderColor: 'rgba(245, 158, 11, 0.8)',
           backgroundColor: 'rgba(245, 158, 11, 0.1)',
         },
         {
           label: 'Unstructured',
-          data: labels.map(l => timeline[l].unstructured || 0),
+          data: finalBuckets.map(l => timeline[l].unstructured || 0),
           borderColor: 'rgba(129, 140, 248, 0.8)',
           backgroundColor: 'rgba(129, 140, 248, 0.1)',
         }
