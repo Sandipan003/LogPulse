@@ -552,19 +552,19 @@ app.post('/api/logs/raw', async (req, res) => {
         },
         {
           label: 'Errors',
-          data: finalBuckets.map(l => timeline[l].errors || 0),
+          data: labels.map(l => timeline[l].errors || 0),
           borderColor: 'rgba(239, 68, 68, 0.8)',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
         },
         {
           label: 'Warnings',
-          data: finalBuckets.map(l => timeline[l].warnings || 0),
+          data: labels.map(l => timeline[l].warnings || 0),
           borderColor: 'rgba(245, 158, 11, 0.8)',
           backgroundColor: 'rgba(245, 158, 11, 0.1)',
         },
         {
           label: 'Unstructured',
-          data: finalBuckets.map(l => timeline[l].unstructured || 0),
+          data: labels.map(l => timeline[l].unstructured || 0),
           borderColor: 'rgba(129, 140, 248, 0.8)',
           backgroundColor: 'rgba(129, 140, 248, 0.1)',
         }
