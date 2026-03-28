@@ -43,40 +43,42 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
       {/* Mobile Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-in fade-in"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
           onClick={onClose}
         />
       )}
       
-      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col pt-6 shrink-0 transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside 
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col pt-4 lg:pt-6 shrink-0 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-[20px_0_60px_rgba(0,0,0,0.8)]' : '-translate-x-full'}`}
+      >
       
-      <div className="px-6 pb-6 border-b border-zinc-800/50 mb-4">
-        <h2 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Workspace</h2>
-        <nav className="space-y-1">
+      <div className="px-6 pb-6 border-b border-zinc-800/50 mt-4 md:mt-8 mb-6">
+        <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Workspace Control</h2>
+        <nav className="space-y-1.5">
           <button 
             onClick={() => { onNavigate('upload'); onClose?.(); }}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'upload' || activeView === 'dashboard' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
+            className={`w-full flex items-center gap-3 px-3 py-3 lg:py-2.5 rounded-lg transition-all ${activeView === 'upload' || activeView === 'dashboard' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'}`}>
             <Inbox className="w-5 h-5 text-brand-400" />
-            <span className="font-bold">New Analysis</span>
+            <span className="font-bold text-sm">New Analysis</span>
           </button>
           <button 
             onClick={() => { onNavigate('history'); onClose?.(); }}
-            className={`w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'history' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
+            className={`w-full flex items-center justify-start gap-3 px-3 py-3 lg:py-2.5 rounded-lg transition-all ${activeView === 'history' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'}`}>
             <Database className="w-5 h-5 text-brand-400" />
-            <span className="font-bold">MySQL History</span>
+            <span className="font-bold text-sm">MySQL History</span>
           </button>
           <button 
             onClick={() => { onNavigate('settings'); onClose?.(); }}
-            className={`w-full justify-start flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeView === 'settings' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}`}>
+            className={`w-full justify-start flex items-center gap-3 px-3 py-3 lg:py-2.5 rounded-lg transition-all ${activeView === 'settings' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'}`}>
             <Settings className="w-5 h-5" />
-            <span className="font-bold">Settings</span>
+            <span className="font-bold text-sm text-left">Settings</span>
           </button>
         </nav>
       </div>
 
-      <div className="px-6 flex-1 overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Previous Uploads</h2>
+      <div className="px-6 pt-6 mt-8 md:mt-12 mb-8 flex-1 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Previous Artifacts</h2>
           <button onClick={fetchSessions} className="text-zinc-600 hover:text-brand-400 transition-colors">
             <Clock className="w-3.5 h-3.5" />
           </button>

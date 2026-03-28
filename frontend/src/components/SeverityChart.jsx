@@ -42,22 +42,29 @@ export default function SeverityChart({ summary }) {
   };
 
   const data = {
-    labels: ['Errors', 'Warnings', 'Infos'],
+    labels: ['Errors', 'Warnings', 'Infos', 'Unstructured'],
     datasets: [
       {
-        data: [summary.errorCount, summary.warnCount, summary.infoCount],
+        data: [
+          summary.errorCount, 
+          summary.warnCount, 
+          summary.infoCount, 
+          summary.unstructuredCount || 0
+        ],
         backgroundColor: [
-          'rgba(239, 68, 68, 0.8)', // red-500
-          'rgba(245, 158, 11, 0.8)', // amber-500
-          'rgba(16, 185, 129, 0.8)'  // emerald-500
+          'rgba(239, 68, 68, 0.8)',   // red-500
+          'rgba(245, 158, 11, 0.8)',   // amber-500
+          'rgba(16, 185, 129, 0.8)',   // emerald-500
+          'rgba(129, 140, 248, 0.8)'   // indigo-400
         ],
         borderColor: [
           'rgba(239, 68, 68, 1)',
           'rgba(245, 158, 11, 1)',
-          'rgba(16, 185, 129, 1)'
+          'rgba(16, 185, 129, 1)',
+          'rgba(129, 140, 248, 1)'
         ],
         borderWidth: 2,
-        hoverOffset: 10
+        hoverOffset: 12
       }
     ]
   };

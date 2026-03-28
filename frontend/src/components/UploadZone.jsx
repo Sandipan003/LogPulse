@@ -55,15 +55,15 @@ export default function UploadZone({ onUpload, isProcessing }) {
       <div className="flex border-b border-zinc-800/80">
          <button 
            onClick={() => setActiveTab('upload')} 
-           className={`flex-1 py-4 text-sm font-black uppercase tracking-widest transition flex items-center justify-center gap-2 ${activeTab === 'upload' ? 'bg-zinc-900 border-b-2 border-brand-500 text-brand-400' : 'text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300'}`}
+           className={`flex-1 py-3 md:py-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition flex items-center justify-center gap-2 ${activeTab === 'upload' ? 'bg-zinc-900 border-b-2 border-brand-500 text-brand-400' : 'text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300'}`}
          >
-           <UploadCloud className="w-4 h-4" /> Drop File
+           <UploadCloud className="w-3.5 h-3.5 md:w-4 md:h-4" /> Drop File
          </button>
          <button 
            onClick={() => setActiveTab('paste')} 
-           className={`flex-1 py-4 text-sm font-black uppercase tracking-widest transition flex items-center justify-center gap-2 ${activeTab === 'paste' ? 'bg-zinc-900 border-b-2 border-brand-500 text-brand-400' : 'text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300'}`}
+           className={`flex-1 py-3 md:py-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition flex items-center justify-center gap-2 ${activeTab === 'paste' ? 'bg-zinc-900 border-b-2 border-brand-500 text-brand-400' : 'text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300'}`}
          >
-           <Code className="w-4 h-4" /> Paste Terminal Logs
+           <Code className="w-3.5 h-3.5 md:w-4 md:h-4" /> Paste Logs
          </button>
       </div>
 
@@ -106,21 +106,21 @@ export default function UploadZone({ onUpload, isProcessing }) {
                     : 'border-zinc-700/50 hover:border-zinc-600 hover:bg-zinc-800/30'}
                 `}
               >
-                <div className={`
-                  p-5 rounded-full mb-6 transition-all duration-300
-                  ${isHovered ? 'bg-brand-500/20 text-brand-400 scale-110' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 shadow-inner'}
-                `}>
-                  <UploadCloud className="w-10 h-10" />
-                </div>
-                
-                <h3 className="text-xl md:text-2xl font-black text-white mb-2 selection:bg-brand-500/30">Drop your server file here</h3>
-                <p className="text-zinc-500 font-medium mb-8 text-sm md:text-base text-center">Securely processes massive structural logs locally without crashing.</p>
-                
-                <div className="flex gap-4">
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-widest"><FileText className="w-3.5 h-3.5 text-brand-500" /> .log</span>
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-widest"><FileText className="w-3.5 h-3.5 text-emerald-500" /> .txt</span>
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 uppercase tracking-widest"><Code className="w-3.5 h-3.5 text-amber-500" /> .json</span>
-                </div>
+                 <div className={`
+                   p-4 md:p-5 rounded-full mb-4 md:mb-6 transition-all duration-300
+                   ${isHovered ? 'bg-brand-500/20 text-brand-400 scale-110' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 shadow-inner'}
+                 `}>
+                   <UploadCloud className="w-8 h-8 md:w-10 md:h-10" />
+                 </div>
+                 
+                 <h3 className="text-lg md:text-2xl font-black text-white mb-2 selection:bg-brand-500/30 text-center">Drop your server file here</h3>
+                 <p className="text-zinc-500 font-medium mb-6 md:mb-8 text-xs md:text-base text-center px-4">Securely processes massive structural logs locally without crashing.</p>
+                 
+                 <div className="flex flex-wrap justify-center gap-2 md:gap-4">
+                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[9px] md:text-xs font-bold text-zinc-400 uppercase tracking-widest"><FileText className="w-3.5 h-3.5 text-brand-500" /> .log</span>
+                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[9px] md:text-xs font-bold text-zinc-400 uppercase tracking-widest"><FileText className="w-3.5 h-3.5 text-emerald-500" /> .txt</span>
+                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[9px] md:text-xs font-bold text-zinc-400 uppercase tracking-widest"><Code className="w-3.5 h-3.5 text-amber-500" /> .json</span>
+                 </div>
                 
                 <input 
                   type="file" 

@@ -28,7 +28,6 @@ export default function TimelineChart({ timelineData }) {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    color: '#a1a1aa', // text-zinc-400
     interaction: {
       mode: 'index',
       intersect: false,
@@ -38,58 +37,58 @@ export default function TimelineChart({ timelineData }) {
         position: 'top',
         align: 'end',
         labels: {
-          color: '#a1a1aa',
+          color: '#71717a',
           usePointStyle: true,
-          boxWidth: 8,
-          font: {
-            family: "'Inter', sans-serif",
-            size: 12
-          }
+          boxWidth: 6,
+          padding: 15,
+          font: { family: "'Inter', sans-serif", size: 11, weight: '600' }
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(24, 24, 27, 0.9)', // zinc-900
-        titleColor: '#f4f4f5', // zinc-100
-        bodyColor: '#d4d4d8', // zinc-300
-        borderColor: 'rgba(63, 63, 70, 0.5)', // zinc-700
+        backgroundColor: 'rgba(9, 9, 11, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#a1a1aa',
+        borderColor: 'rgba(39, 39, 42, 1)',
         borderWidth: 1,
-        padding: 12,
-        cornerRadius: 8,
-        displayColors: true,
+        padding: 14,
+        cornerRadius: 10,
+        usePointStyle: true,
+        callbacks: {
+          label: (context) => {
+            let label = context.dataset.label || '';
+            if (label) label += ': ';
+            if (context.parsed.y !== null) label += context.parsed.y.toLocaleString();
+            return label;
+          }
+        }
       }
     },
     scales: {
       x: {
-        grid: {
-          color: 'rgba(63, 63, 70, 0.2)', // zinc-700 with opacity
-          drawBorder: false,
-        },
+        grid: { display: false },
         ticks: {
-          color: '#a1a1aa', // zinc-400
-          maxTicksLimit: 10
+          color: '#52525b',
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 8,
+          callback: function(val, index) {
+            const label = this.getLabelForValue(val);
+            if (label && typeof label === 'string' && label.includes('T')) {
+              return label.split('T')[1].slice(0, 5); // Return HH:mm
+            }
+            return label;
+          }
         }
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(63, 63, 70, 0.2)',
-          drawBorder: false,
-        },
-        ticks: {
-          color: '#a1a1aa',
-          stepSize: 10
-        }
+        grid: { color: 'rgba(39, 39, 42, 0.5)', drawBorder: false },
+        ticks: { color: '#52525b', padding: 10 }
       }
     },
     elements: {
-      line: {
-        tension: 0.4 // smooth curve
-      },
-      point: {
-        radius: 4,
-        hitRadius: 10,
-        hoverRadius: 6
-      }
+      line: { tension: 0.4, borderWidth: 2.5 },
+      point: { radius: 0, hoverRadius: 6, hitRadius: 20 }
     }
   };
 
@@ -99,6 +98,7 @@ export default function TimelineChart({ timelineData }) {
       ...dataset,
       fill: true,
       borderWidth: 2,
+      pointBackgroundColor: dataset.borderColor,
     }))
   };
 

@@ -10,10 +10,7 @@ const sequelize = new Sequelize(MYSQL_DB, MYSQL_USER, MYSQL_PASS, {
   host: MYSQL_HOST,
   port: MYSQL_PORT,
   dialect: 'mysql',
-  logging: false,
-  dialectOptions: {
-    socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
-  }
+  logging: false
 });
 
 const LogSession = sequelize.define('LogSession', {

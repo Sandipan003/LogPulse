@@ -47,16 +47,16 @@ echo ""
   };
 
   return (
-    <div className="h-full flex flex-col justify-between space-y-6">
-      <div className="glass-panel p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-zinc-900 via-zinc-900 to-indigo-950/20 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+    <div className="h-full flex flex-col justify-between space-y-4 md:space-y-6">
+      <div className="glass-panel p-4 md:p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-zinc-900 via-zinc-900 to-indigo-950/20 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-24 h-24 md:w-32 md:h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-24 h-24 md:w-32 md:h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
         
-        <div className="w-16 h-16 bg-zinc-950 border-2 border-brand-500/30 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/20 mb-4 z-10 relative">
-          <BrainCircuit className="w-8 h-8 text-brand-400" />
+        <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-950 border-2 border-brand-500/30 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/20 mb-3 md:mb-4 z-10 relative">
+          <BrainCircuit className="w-6 h-6 md:w-8 md:h-8 text-brand-400" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-1 z-10">AI Diagnostic Complete</h3>
-        <p className="text-sm text-zinc-400 z-10">Found the primary failure cascade.</p>
+        <h3 className="text-lg md:text-xl font-bold text-white mb-1 z-10">AI Diagnostic Complete</h3>
+        <p className="text-xs md:text-sm text-zinc-400 z-10">Found the primary failure cascade.</p>
       </div>
 
       <div className="glass-panel overflow-hidden border-zinc-700/50">
@@ -107,19 +107,19 @@ echo ""
         </div>
 
         {/* Fix */}
-        <div className="p-5 bg-emerald-500/5 relative overflow-hidden group">
+        <div className="p-4 md:p-5 bg-emerald-500/5 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
           <div className="flex items-start gap-3 relative z-10">
-            <div className="mt-1 bg-emerald-500/20 p-1.5 rounded-md text-emerald-500">
+            <div className="mt-1 bg-emerald-500/20 p-1.5 rounded-md text-emerald-500 shrink-0">
               <Lightbulb className="w-4 h-4" />
             </div>
-            <div className="w-full">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-500/80 mb-2">Recommended Fix</h4>
-              <ul className="space-y-2">
+            <div className="w-full min-w-0">
+              <h4 className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-emerald-500/80 mb-2">Recommended Fix</h4>
+              <ul className="space-y-1.5 md:space-y-2">
                 {aiSummary.recommendedFix.split('\n').map((step, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-zinc-300 bg-zinc-900/50 p-2.5 rounded border border-zinc-800/80">
-                    <span className="text-emerald-500 font-mono text-xs mt-0.5">{`>`}</span>
-                    <span className="leading-tight">{step.replace(/^\d+\.\s*/, '')}</span>
+                  <li key={i} className="flex gap-2 text-xs md:text-sm text-zinc-300 bg-zinc-900/50 p-2 md:p-2.5 rounded border border-zinc-800/80">
+                    <span className="text-emerald-500 font-mono text-[10px] md:text-xs mt-0.5 shrink-0">{`>`}</span>
+                    <span className="leading-tight break-words">{step.replace(/^\d+\.\s*/, '')}</span>
                   </li>
                 ))}
               </ul>

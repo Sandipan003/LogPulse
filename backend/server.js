@@ -9,7 +9,16 @@ const readline = require('readline');
 const os = require('os');
 const path = require('path');
 const { LogSession, sequelize } = require('./models/LogSession');
+const { User } = require('./models/User');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const auth = require('./middleware/auth');
+
+// Define relationships
+LogSession.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(LogSession, { foreignKey: 'userId', as: 'sessions' });
+
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -256,14 +265,16 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
     dateObj = new Date(); // Fallback to current ingestion time
   }
   
-  const bucket = dateObj.toISOString().slice(0, 16);
+  const bucket = dateObj.toISOString().slice(0, 16); // Minute-level bucket
   if (!timeline[bucket]) {
-    timeline[bucket] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
+    timeline[bucket] = { total: 0, errors: 0, warnings: 0, infos: 0, unstructured: 0 };
   }
+  
   timeline[bucket].total++;
   if (finalSeverity === 'ERROR') timeline[bucket].errors++;
   else if (finalSeverity === 'WARN') timeline[bucket].warnings++;
-  else if (finalSeverity === 'UNSTRUCTURED') timeline[bucket].unstructured++;
+  else if (finalSeverity === 'INFO' || finalSeverity === 'DEBUG' || finalSeverity === 'TRACE') timeline[bucket].infos++;
+  else timeline[bucket].unstructured++;
 
   // Clustering
   if (finalSeverity === 'ERROR' || finalSeverity === 'WARN') {
@@ -290,10 +301,49 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
 
 // REST ENDPOINTS
 
+// --- AUTHENTICATION ENDPOINTS ---
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) return res.status(400).json({ error: 'Email already in use' });
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await User.create({ email, passwordHash });
+    
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'fallback_secret_logpulse', { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user.id, email: user.email } });
+  } catch (error) {
+    res.status(500).json({ error: 'Registration failed', details: error.message });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'fallback_secret_logpulse', { expiresIn: '7d' });
+    res.json({ token, user: { id: user.id, email: user.email } });
+  } catch (error) {
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Protect all /api/logs routes
+app.use('/api/logs', auth);
+
 // 1. Fetch all previous sessions (metadata only for Sidebar)
 app.get('/api/logs', async (req, res) => {
   try {
     const sessions = await LogSession.findAll({
+      where: { userId: req.user.id },
       attributes: ['_id', 'fileName', 'uploadDate', 'stats', 'aiSummary'],
       order: [['uploadDate', 'DESC']]
     });
@@ -306,8 +356,8 @@ app.get('/api/logs', async (req, res) => {
 // 2. Fetch a specific session by ID
 app.get('/api/logs/:id', async (req, res) => {
   try {
-    const session = await LogSession.findByPk(req.params.id);
-    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const session = await LogSession.findOne({ where: { _id: req.params.id, userId: req.user.id } });
+    if (!session) return res.status(404).json({ error: 'Session not found or forbidden' });
     
     // Format to match what the frontend expects for active state
     res.json({
@@ -420,7 +470,8 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
       stats,
       aiSummary,
       clusters: clustersArray,
-      timeline: timelineFormatted
+      timeline: timelineFormatted,
+      userId: req.user.id
     });
 
     res.status(201).json({
@@ -489,33 +540,33 @@ app.post('/api/logs/raw', async (req, res) => {
       sortedBuckets.push(after);
     }
 
-    const finalBuckets = sortedBuckets.slice(-60);
+    const labels = Object.keys(timeline).sort().slice(-60);
     const timelineFormatted = {
-      labels: finalBuckets,
+      labels: labels,
       datasets: [
         {
-          label: "Total Logs",
-          data: finalBuckets.map(b => timeline[b].total || 0),
-          borderColor: "#3b82f6",
-          backgroundColor: "rgba(59, 130, 246, 0.2)"
+          label: 'Total Logs',
+          data: labels.map(l => timeline[l].total || 0),
+          borderColor: 'rgba(56, 189, 248, 0.8)',
+          backgroundColor: 'rgba(56, 189, 248, 0.1)',
         },
         {
-          label: "Errors",
-          data: finalBuckets.map(b => timeline[b].errors || 0),
-          borderColor: "#ef4444",
-          backgroundColor: "rgba(239, 68, 68, 0.2)"
+          label: 'Errors',
+          data: labels.map(l => timeline[l].errors || 0),
+          borderColor: 'rgba(239, 68, 68, 0.8)',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
         },
         {
-          label: "Warnings",
-          data: finalBuckets.map(b => timeline[b].warnings || 0),
-          borderColor: "#f59e0b",
-          backgroundColor: "rgba(245, 158, 11, 0.2)"
+          label: 'Warnings',
+          data: labels.map(l => timeline[l].warnings || 0),
+          borderColor: 'rgba(245, 158, 11, 0.8)',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
         },
         {
-          label: "Unstructured",
-          data: finalBuckets.map(b => timeline[b].unstructured || 0),
-          borderColor: "#8b5cf6",
-          backgroundColor: "rgba(139, 92, 246, 0.2)"
+          label: 'Unstructured',
+          data: labels.map(l => timeline[l].unstructured || 0),
+          borderColor: 'rgba(129, 140, 248, 0.8)',
+          backgroundColor: 'rgba(129, 140, 248, 0.1)',
         }
       ]
     };
@@ -529,7 +580,8 @@ app.post('/api/logs/raw', async (req, res) => {
       stats,
       timeline: timelineFormatted,
       clusters: clustersArray,
-      aiSummary
+      aiSummary,
+      userId: req.user.id
     });
     res.json({
       _id: savedDoc._id,
@@ -550,7 +602,7 @@ app.post('/api/logs/raw', async (req, res) => {
 // 4. Wipe massive database memory (ALL)
 app.delete('/api/logs', async (req, res) => {
   try {
-    await LogSession.destroy({ where: {} });
+    await LogSession.destroy({ where: { userId: req.user.id } });
     res.json({ message: 'MySQL table wiped clean.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to obliterate database.' });
@@ -560,7 +612,7 @@ app.delete('/api/logs', async (req, res) => {
 // 5. Granular specific deletion (Individual)
 app.delete('/api/logs/:id', async (req, res) => {
   try {
-    const deletedSession = await LogSession.destroy({ where: { _id: req.params.id } });
+    const deletedSession = await LogSession.destroy({ where: { _id: req.params.id, userId: req.user.id } });
     if (!deletedSession) return res.status(404).json({ error: 'Session not found for deletion' });
     res.json({ message: 'Successfully removed session from cluster.' });
   } catch (error) {
