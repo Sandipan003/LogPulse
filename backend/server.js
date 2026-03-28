@@ -185,6 +185,25 @@ const LOG_FORMATS = [
   }
 ];
 
+function parseTimestamp(ts) {
+  if (!ts) return null;
+  // Handle Nginx format: 28/Mar/2026:12:06:01 +0530
+  if (ts.includes('/') && ts.includes(':')) {
+    const parts = ts.split(/[\/:]/);
+    if (parts.length >= 4) {
+      const day = parts[0];
+      const month = parts[1];
+      const year = parts[2];
+      const hour = parts[3];
+      const min = parts[4];
+      const sec = parts[5];
+      // Reformat to something Date() likes: "Mar 28 2026 12:06:01"
+      return new Date(`${month} ${day} ${year} ${hour}:${min}:${sec}`);
+    }
+  }
+  return new Date(ts);
+}
+
 function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INFO' }) {
   let parsed = null;
   
@@ -201,7 +220,7 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
     }
   }
 
-  // Handle Multi-line stack traces (lines starting with tab or space)
+  // Handle Multi-line stack traces
   if (!parsed && line.match(/^\s+(at|causetby|---)/i)) {
     if (state.lastCluster) {
       state.lastCluster.pattern += "\n" + line.trim();
@@ -210,7 +229,7 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
   }
 
   const severity = parsed ? parsed.severity : 'UNSTRUCTURED';
-  const timestamp = parsed ? parsed.timestamp : null;
+  let timestamp = parsed ? parsed.timestamp : null;
   const message = (parsed ? parsed.message : line).trim();
 
   // Normalize Severity
@@ -218,7 +237,6 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
   if (finalSeverity === 'WARNING') finalSeverity = 'WARN';
   if (['FATAL', 'CRITICAL', 'SEVERE', 'ALERT'].includes(finalSeverity)) finalSeverity = 'ERROR';
 
-  // Fallback heuristic for unstructured lines
   if (finalSeverity === 'UNSTRUCTURED' && /exception|failed|timeout|crash|traceback|panic/i.test(message)) {
     finalSeverity = 'ERROR';
   }
@@ -233,13 +251,18 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
   else stats.unstructuredCount++;
 
   // Record timeline
-  if (timestamp) {
-    let dateObj = new Date(timestamp);
-    if (!isNaN(dateObj.getTime())) {
-      let bucket = dateObj.toISOString().slice(0, 16);
-      timeline[bucket] = (timeline[bucket] || 0) + 1;
-    }
+  let dateObj = parseTimestamp(timestamp);
+  if (!dateObj || isNaN(dateObj.getTime())) {
+    dateObj = new Date(); // Fallback to current ingestion time
   }
+  
+  const bucket = dateObj.toISOString().slice(0, 16);
+  if (!timeline[bucket]) {
+    timeline[bucket] = { total: 0, errors: 0, warnings: 0 };
+  }
+  timeline[bucket].total++;
+  if (finalSeverity === 'ERROR') timeline[bucket].errors++;
+  else if (finalSeverity === 'WARN') timeline[bucket].warnings++;
 
   // Clustering
   if (finalSeverity === 'ERROR' || finalSeverity === 'WARN') {
@@ -347,7 +370,7 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     datasets: [
       {
         label: "Errors",
-        data: sortedBuckets.map(b => timeline[b].errors || timeline[b] || 0),
+        data: sortedBuckets.map(b => timeline[b].errors || 0),
         borderColor: "#ef4444",
         backgroundColor: "rgba(239, 68, 68, 0.2)"
       },
@@ -431,7 +454,7 @@ app.post('/api/logs/raw', async (req, res) => {
       datasets: [
         {
           label: "Errors",
-          data: sortedBuckets.map(b => timeline[b].errors || timeline[b] || 0),
+          data: sortedBuckets.map(b => timeline[b].errors || 0),
           borderColor: "#ef4444",
           backgroundColor: "rgba(239, 68, 68, 0.2)"
         },
