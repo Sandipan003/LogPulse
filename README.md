@@ -1,79 +1,82 @@
-# LogPulse ⚡️ Intelligent DevOps Diagnostic Tool
+# LogPulse Engine ⚡️ Production AI Edition
 
-[![Hackathon Grade](https://img.shields.io/badge/Status-Presentation_Ready-emerald?style=for-the-badge)](https://github.com/LogPulse)
-[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-blue?style=for-the-badge)](https://github.com/LogPulse)
+[![Status](https://img.shields.io/badge/Status-Production_Ready-emerald?style=for-the-badge)](https://github.com/Sandipan003/LogPulse)
+[![AI](https://img.shields.io/badge/AI-Gemini_1.5_Flash-blue?style=for-the-badge)](https://deepmind.google/technologies/gemini/)
+[![Database](https://img.shields.io/badge/Database-MySQL-orange?style=for-the-badge)](https://www.mysql.com/)
 
-**LogPulse** is a lightning-fast, highly resilient application log analysis engine designed to eliminate the manual toil of debugging sprawling microservices. By instantly transforming raw, unstructured application logs into actionable "Incident Intelligence", engineering teams can drastically reduce MTTD (Mean Time To Resolution).
-
----
-
-## 🔬 Under the Hood: The Technology Stack
-
-LogPulse is built for performance, resilience, and visual impact.
-
-### 1. The Logic Engine (Backend)
-
-The core processing engine is built on **Node.js (Express)** with a focus on streaming efficiency:
-
-- **Stream Streaming (V8 Engine Optimization)**: Instead of loading massive 10MB–1GB `.log` files into RAM (which causes classic `Out of Memory` crashes), the backend uses `fs.createReadStream` combined with `readline`. It streams the data sequentially from a temporary disk storage buffer (`os.tmpdir()`), capping deeply complex analysis at the top 10,000 relevant lines for instant sub-second API responses.
-- **Regex Resilience Pipeline**: Features a two-stage parsing pipeline. 
-  1. The strict parser pulls exact `[Timestamp] [Severity]` markers. 
-  2. If a system outputs broken or non-standard logs, the **Fallback Unstructured Tracker** gracefully captures and bins the logs without failing.
-- **Smart Signature Clustering**: Identifies structurally identical errors by obfuscating variable data (like `UUIDs`, `IPs`, and arbitrary numbers) into identical template signatures. It uses exact matching on these sanitized patterns, providing 100% accuracy without the false-positive risk of aggressive Levenshtein distance grouping.
-- **Heuristic AI Engine**: Analyzes the structural metadata of the log clusters against pre-defined rules logic to automatically identify common failure cascades (e.g., "Connection Pool Exhaustion" vs. "OOM Container Kills").
-
-### 2. The Presentation Layer (Frontend)
-
-The presentation facade is a responsive Single Page Application (SPA).
-
-- **Framework**: Built on **React** bundled with **Vite** for HMR and instant asset delivery.
-- **Aesthetic**: **Tailwind CSS v4** powering a sleek, glassmorphic dark-mode interface (`.glass-col`, dynamic SVG lighting) optimized explicitly for 1080p projectors and high-visibility demonstrations.
-- **Data Visualization**: **Chart.js (`react-chartjs-2`)** constructs the Log Density Timeline by binning time-series data into discrete, localized minute-buckets, giving a pristine graphical view of the error spike trajectory.
-- **Micro-Interactions**: Custom `@keyframes` CSS powers a realistic "AI Scanning Laser" UI during the file processing phase, delivering a buttery-smooth user experience while backend streams calculate data.
+**LogPulse** is a production-grade log diagnostic tool that transforms noisy application logs into actionable engineering intelligence. Powered by **Google Gemini 1.5 Flash**, it identifies root causes, technical impacts, and remediation steps in seconds.
 
 ---
 
-## 🚀 Quick Fix Guide (Common Environment Issues)
+## 🌟 Key Features
 
-Hackathon demo environments can be unpredictable. Here is a definitive list of quick fixes if you encounter issues running LogPulse live.
+- **🚀 Generative AI Diagnostics**: Integrated with Google Gemini to provide deep technical failure analysis and impact assessments.
+- **📊 Multi-Series Analytics**: Real-time density timeline visualizing Total Logs, Errors, Warnings, and Unstructured data.
+- **🗄️ MySQL Persistence**: Every analysis is permanently registered in MySQL for historic auditing and trend analysis.
+- **🔍 Deep-Dive Evidence**: Smart clustering with expandable raw log samples for every detected signature.
+- **🛠️ Auto-Fix Generator**: Automatically generates bash remediation scripts based on AI-detected failure patterns.
+- **⚡ High-Performance Parser**: Robust support for JSON, Nginx/Apache, Spring Boot, and Generic log formats with multi-line stack trace support.
 
-### 1. Missing Dependencies / `Cannot find module`
-* **Symptom**: Running `npm run dev` or `node index.js` throws an error about something immediately missing.
-* **Quick Fix**: Run `npm install` again in the specific folder that failed (either `/frontend` or `/backend`). Especially check `/backend` if `multer` or `cors` is failing. 
+---
 
-### 2. CORS Errors in the Browser Console
-* **Symptom**: The UI loads perfectly, but uploading a file fails with a red "Upload error: TypeError: Failed to fetch". The Chrome DevTools Console shows a distinct CORS red text.
-* **Quick Fix**: The Frontend natively points to `http://localhost:3001`. Ensure your backend terminal is running without crashing. In `backend/index.js`, ensure `app.use(cors())` is placed **before** `app.use(express.json())` and routing bindings.
+## 🔬 Technology Stack
 
-### 3. Backend Fails to Start: `EADDRINUSE: address already in use :::3001`
-* **Symptom**: Node throws an `EADDRINUSE` connection error. Another service (or an invisible zombie node process) is currently occupying port 3001.
-* **Quick Fix**: 
-  - *Mac/Linux*: `kill -9 $(lsof -t -i:3001)`
-  - *Windows*: `netstat -ano | findstr :3001`, note the PID, then `taskkill /PID <PID> /F`.
+- **Frontend**: React 18, Vite, Chart.js, Tailwind CSS, Lucide Icons.
+- **Backend**: Node.js, Express, Sequelize ORM.
+- **AI**: Google Generative AI (Gemini 1.5 Flash).
+- **Database**: MySQL 8.0+ (Persistent storage).
 
-### 4. Node Version Conflict 
-* **Symptom**: Syntax errors around `for await (const line of rl)` or newer language features.
-* **Quick Fix**: Ensure you are running Node.js v16 or higher. Run `node -v` to check. If using NVM, run `nvm use 18` or `nvm use 20`.
+---
 
-### 5. UI Fails to Bind: Port 5173 taken
-* **Symptom**: Vite starts on `5174` instead of `5173`.
-* **Quick Fix**: The dashboard will still work! Just open `http://localhost:5174` in your browser. (The backend ports are hardcoded in the frontend `fetch` request, not the hosting port).
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the `backend/` directory:
+
+```env
+PORT=3001
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# MySQL Configuration
+MYSQL_DB=logpulse_db
+MYSQL_USER=root
+MYSQL_PASSWORD=
+MYSQL_HOST=127.0.0.1
+```
 
 ---
 
 ## 🏗️ Getting Started
 
-1. Clone this repository.
-2. In Terminal 1:
-   ```bash
-   cd backend
-   npm install
-   node index.js
-   ```
-3. In Terminal 2:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-4. Navigate to `http://localhost:5173` and engage the **Mock Demo Mode** switch or drop in a real `.log` file to begin.
+### 1. Database Setup
+Ensure MySQL is running and create the database:
+```sql
+CREATE DATABASE logpulse_db;
+```
+
+### 2. Backend Installation
+```bash
+cd backend
+npm install
+node server.js
+```
+
+### 3. Frontend Installation
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 4. Access the Engine
+Open `http://localhost:5173` in your browser.
+
+---
+
+## 📖 Deployment Notes
+- **Security**: The `.gitignore` is configured to protect your `.env` secrets. Never commit your API keys.
+- **Scaling**: The system uses streaming readers to process up to 10,000 lines per request without memory exhaustion.
+
+---
+
+## 👨‍💻 Author
+**Sandipan** - [GitHub](https://github.com/Sandipan003)
