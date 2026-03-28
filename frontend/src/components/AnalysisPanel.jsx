@@ -12,6 +12,7 @@ export default function AnalysisPanel({ aiSummary }) {
 # LogPulse Auto-Fix Script
 # Generated: ${new Date().toISOString()}
 # Root Cause: ${aiSummary.rootCause}
+# Technical Details: ${aiSummary.technicalDetails || "N/A"}
 # ==============================================================================
 
 echo "Initializing LogPulse Remediation Protocol..."
@@ -73,6 +74,23 @@ echo ""
             </div>
           </div>
         </div>
+        
+        {/* Technical Details */}
+        {aiSummary.technicalDetails && (
+          <div className="p-5 border-b border-zinc-800/80 bg-brand-500/5 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="mt-1 bg-brand-500/20 p-1.5 rounded-md text-brand-500">
+                <Workflow className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-brand-400/80 mb-1">Technical Deep Dive</h4>
+                <p className="text-zinc-300 text-sm leading-relaxed italic">"{aiSummary.technicalDetails}"</p>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Impact */}
         <div className="p-5 border-b border-zinc-800/80 bg-amber-500/5 relative overflow-hidden group">

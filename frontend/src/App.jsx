@@ -24,6 +24,7 @@ function App() {
   const [historyData, setHistoryData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [proEnabled, setProEnabled] = useState(false);
+  const [expandedClusterId, setExpandedClusterId] = useState(null);
 
   // Fetch history specifically for the History tab
   const loadHistoryView = async () => {
@@ -359,24 +360,46 @@ function App() {
                        </div>
                     ) : (
                       <div className="divide-y divide-zinc-800/80 p-2">
-                        {displayedClusters.map((cluster) => (
-                          <div key={cluster.id} className="p-5 hover:bg-zinc-800/60 rounded-xl transition-colors flex items-center gap-6">
-                            <div className={`p-3 rounded-full ${cluster.severity === 'ERROR' ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-amber-500/20 text-amber-500 border border-amber-500/30'}`}>
-                                <SearchCode className="w-5 h-5" />
+                        {displayedClusters.map((cluster, idx) => (
+                          <div key={idx} className="border-b border-zinc-800/40 last:border-0">
+                            <div 
+                              onClick={() => setExpandedClusterId(expandedClusterId === idx ? null : idx)}
+                              className="p-5 hover:bg-zinc-800/60 transition-colors flex items-center gap-6 cursor-pointer group"
+                            >
+                              <div className={`p-3 rounded-full transition-colors ${cluster.severity === 'ERROR' ? 'bg-red-500/10 text-red-500 border border-red-500/20 group-hover:bg-red-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:bg-amber-500/20'}`}>
+                                  <SearchCode className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 min-w-0 pr-4">
+                                <p className="text-base font-mono font-medium text-zinc-100 mb-2 truncate bg-zinc-950 p-2 rounded-lg border border-zinc-800 shadow-inner group-hover:border-zinc-700 transition-colors">
+                                   {cluster.pattern}
+                                </p>
+                                <p className="text-xs font-bold text-zinc-400 tracking-wider">
+                                  LATEST: <span className="text-zinc-200">{cluster.latestTimestamp || 'N/A'}</span>
+                                </p>
+                              </div>
+                              <div className="flex-shrink-0 text-right">
+                                <span className="inline-flex items-center px-5 py-3 rounded-xl text-2xl font-black bg-zinc-950 text-white border border-zinc-700 shadow-2xl group-hover:border-brand-500/30 transition-colors">
+                                  {cluster.count} <span className="ml-1 text-xs font-bold text-brand-500 tracking-widest">HITS</span>
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0 pr-4">
-                              <p className="text-base font-mono font-medium text-zinc-100 mb-2 truncate bg-zinc-950 p-2 rounded-lg border border-zinc-800 shadow-inner">
-                                 {cluster.pattern}
-                              </p>
-                              <p className="text-xs font-bold text-zinc-400 tracking-wider">
-                                LATEST: <span className="text-zinc-200">{cluster.latestTimestamp || 'N/A'}</span>
-                              </p>
-                            </div>
-                            <div className="flex-shrink-0 text-right">
-                              <span className="inline-flex items-center px-5 py-3 rounded-xl text-2xl font-black bg-zinc-950 text-white border border-zinc-700 shadow-2xl">
-                                {cluster.count} <span className="ml-1 text-xs font-bold text-brand-500 tracking-widest">HITS</span>
-                              </span>
-                            </div>
+                            
+                            {/* Expandable Samples Section */}
+                            {expandedClusterId === idx && cluster.samples && (
+                              <div className="px-5 pb-5 animate-in slide-in-from-top-2 duration-300">
+                                <div className="bg-zinc-950/80 rounded-xl border border-zinc-800 p-4 space-y-3">
+                                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2 px-1">Raw Evidence Samples</h4>
+                                  <div className="space-y-2">
+                                    {cluster.samples.map((sample, sIdx) => (
+                                      <div key={sIdx} className="p-3 bg-zinc-900/50 rounded-lg border border-zinc-800/50 text-[11px] font-mono text-zinc-300 break-all leading-relaxed relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-zinc-800"></div>
+                                        {sample}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ))}
                         {displayedClusters.length === 0 && (

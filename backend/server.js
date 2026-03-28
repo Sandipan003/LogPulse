@@ -9,9 +9,13 @@ const readline = require('readline');
 const os = require('os');
 const path = require('path');
 const { LogSession, sequelize } = require('./models/LogSession');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Initialize Gemini
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 
 // MySQL Connection
 sequelize.sync({ alter: true })
@@ -27,14 +31,70 @@ const upload = multer({
 });
 
 function generateSignature(message) {
+  // If it's a stack trace, extract the exception name
+  const exceptionMatch = message.match(/([a-zA-Z0-9.]+Exception|Error):/);
+  if (exceptionMatch) return exceptionMatch[1];
+
   let sig = message;
   sig = sig.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '<IP>');
   sig = sig.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ig, '<UUID>');
   sig = sig.replace(/\b\d+\b/g, '<NUM>');
-  return sig.trim();
+  return sig.trim().substring(0, 150);
 }
 
-function generateMockAISummary(clusters, unstructuredCount) {
+async function generateRealAISummary(clusters, stats) {
+  if (!genAI) {
+    console.warn("⚠️ No GEMINI_API_KEY found, falling back to heuristic summary.");
+    return generateHeuristicSummary(clusters, stats.unstructuredCount);
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // Enrich top clusters with their raw samples for deeper AI context
+    const topClustersContext = clusters.slice(0, 8).map(c => {
+      const samplesText = (c.samples || []).map(s => `      - RAW SAMPLE: ${s}`).join('\n');
+      return `- CLUSTER [${c.severity}]: ${c.pattern} (${c.count} occurrences)\n${samplesText}`;
+    }).join('\n\n');
+    
+    const prompt = `
+      You are an expert DevOps SRE and Principal Engineer. Analyze these log error clusters and provide a high-precision incident report.
+      
+      CONTEXT:
+      - Total Logs Processed: ${stats.totalLogs}
+      - Total Error Count: ${stats.errorCount}
+      - Period Analyzed: Last batch of logs.
+      
+      TARGET ERROR DATA (CLUSTERS & EVIDENCE SAMPLES):
+      ${topClustersContext}
+      
+      TASK:
+      1. Identify the absolute Root Cause by correlating the patterns and samples. If multiple issues exist, identify the primary one.
+      2. provide a detailed technical insight into WHY this is happening (e.g., specific library, database, or network failure).
+      3. Predict the downstream impact if not resolved.
+      4. Provide a concrete, step-by-step remediation guide.
+      
+      RESPONSE FORMAT (STRICT JSON ONLY):
+      {
+        "rootCause": "A comprehensive, high-level summary of the issue (15-20 words)",
+        "technicalDetails": "Detailed engineering-level explanation of the failure mechanism based on the raw samples",
+        "impact": "Specific system-wide implications (latency, data loss, downtime risk)",
+        "recommendedFix": "Numbered list of actionable technical fixes"
+      }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    // Clean JSON if Gemini wraps it in markdown blocks
+    const cleanJson = responseText.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    return generateHeuristicSummary(clusters, stats.unstructuredCount);
+  }
+}
+
+function generateHeuristicSummary(clusters, unstructuredCount) {
   const errorClusters = clusters.filter(c => c.severity === 'ERROR');
   
   if (errorClusters.length === 0) {
@@ -54,98 +114,153 @@ function generateMockAISummary(clusters, unstructuredCount) {
 
   const combinedPatterns = errorClusters.map(c => c.pattern.toLowerCase()).join(' ');
 
-  if (combinedPatterns.includes('timeout') && combinedPatterns.includes('connection')) {
+  if (combinedPatterns.includes('timeout') || combinedPatterns.includes('pool')) {
     return {
-      rootCause: "Database Connection Pool Exhaustion",
-      impact: `Detected ${errorClusters[0].count} connection drop-offs critically impacting API latency.`,
-      recommendedFix: "1. Increase the max connection pool size in 'db.config'.\n2. Track down orphaned transactions consuming idle connections.\n3. Verify network stability to the main cluster."
+      rootCause: "Resource Pool Exhaustion",
+      impact: `Detected ${errorClusters[0].count} resource drop-offs critically impacting API availability.`,
+      recommendedFix: "1. Increase the max connection pool size in config.\n2. Check for leaked db connections.\n3. Verify network threshold limits."
     };
   }
 
   if (combinedPatterns.includes('memory') || combinedPatterns.includes('oom')) {
     return {
-      rootCause: "Out of Memory (OOM) Exception / Resource Leak",
-      impact: "Critical memory threshholds breached causing automatic container kills and dropped active requests.",
-      recommendedFix: "1. Horizontally scale the affected service node immediately to stop bleeding.\n2. Analyze heap profiles under load to find the exact memory leak.\n3. Elevate the container RAM allocation ceiling."
-    };
-  }
-  
-  if (combinedPatterns.includes('auth') || combinedPatterns.includes('token') || combinedPatterns.includes('unauthorized')) {
-    return {
-      rootCause: "Authentication Gateway Failure",
-      impact: "Users are blocked from accessing secure endpoints due to widespread JWT/Token validation rejections.",
-      recommendedFix: "1. Verify the core Identity Provider (IdP) service status.\n2. Ensure recent key rotations propagated cleanly to the API gateway.\n3. Check standard clock synchronization metrics (NTP)."
+      rootCause: "Memory Leak Detected",
+      impact: "JVM or Node process breached RAM limits causing OOM-Kills.",
+      recommendedFix: "1. Scale nodes horizontally.\n2. Enable heap dump on OOM.\n3. Increase container memory requests/limits."
     };
   }
 
   return {
-    rootCause: "Unknown Application Exception",
-    impact: `Encountered consecutive unexpected errors indicating a disruption in standard operations.`,
-    recommendedFix: `1. Deep dive into the top cluster: "${errorClusters[0].pattern}".\n2. Map occurrences directly to the latest deployment SHA to find regressions.\n3. Increase detailed tracing verbosity temporarily.`
+    rootCause: "Application Runtime Exception",
+    impact: `Primary issue in ${errorClusters[0].pattern} affecting stability.`,
+    recommendedFix: `1. Review recent deployments for regressions.\n2. Validate input sanitization on affected endpoint.\n3. Increase log level to DEBUG.`
   };
 }
 
-function parseLine(line, stats, timeline, clusters) {
-  const timestampRegex = /\[(.*?)\]|^(20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)|^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}/;
-  const severityRegex = /\b(ERROR|WARN|WARNING|INFO|DEBUG|FATAL|CRITICAL)\b/i;
+const LOG_FORMATS = [
+  // 1. JSON
+  {
+    name: 'json',
+    detect: (line) => line.trim().startsWith('{') && line.trim().endsWith('}'),
+    parse: (line) => {
+      try {
+        const j = JSON.parse(line);
+        return {
+          timestamp: j.timestamp || j.time || j.date || null,
+          severity: (j.level || j.severity || j.status || 'INFO').toUpperCase(),
+          message: j.message || j.msg || j.error || j.log || Object.values(j).join(' ')
+        };
+      } catch (e) { return null; }
+    }
+  },
+  // 2. Nginx/Apache Combined
+  {
+    name: 'web',
+    regex: /^(\S+) \S+ \S+ \[(.*?)\] "(\S+) (\S+) \S+" (\d{3}) (\d+|-)/,
+    parse: (match) => ({
+      timestamp: match[2],
+      severity: parseInt(match[5]) >= 400 ? 'ERROR' : 'INFO',
+      message: `${match[3]} ${match[4]} returned ${match[5]}`
+    })
+  },
+  // 3. Spring Boot / Logback
+  {
+    name: 'spring',
+    regex: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(ERROR|WARN|INFO|DEBUG|TRACE)\s+\[(.*?)\]\s+(.*?)\s+:\s+(.*)/,
+    parse: (match) => ({
+      timestamp: match[1],
+      severity: match[2],
+      message: match[5]
+    })
+  },
+  // 4. Generic [Timestamp] Severity
+  {
+    name: 'generic',
+    regex: /^\[(.*?)\]\s+(ERROR|WARN|INFO|DEBUG|FATAL|CRITICAL)\b(.*?):\s*(.*)/i,
+    parse: (match) => ({
+      timestamp: match[1],
+      severity: match[2].toUpperCase(),
+      message: match[4]
+    })
+  }
+];
 
-  let timestamp = null;
-  let severity = 'UNSTRUCTURED';
-  let message = line.trim();
-
-  if (message.startsWith('{') && message.endsWith('}')) {
-     try {
-       const j = JSON.parse(message);
-       message = j.message || j.msg || j.error || j.log || Object.values(j).join(' ');
-       severity = (j.level || j.severity || 'UNSTRUCTURED').toUpperCase();
-       timestamp = j.timestamp || j.time || j.date || null;
-     } catch(e) { } 
+function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INFO' }) {
+  let parsed = null;
+  
+  for (const format of LOG_FORMATS) {
+    if (format.detect && format.detect(line)) {
+      parsed = format.parse(line);
+      if (parsed) break;
+    } else if (format.regex) {
+      const match = line.match(format.regex);
+      if (match) {
+        parsed = format.parse(match);
+        if (parsed) break;
+      }
+    }
   }
 
-  const tsMatch = message.match(timestampRegex);
-  if (tsMatch) {
-    timestamp = tsMatch[1] || tsMatch[2] || tsMatch[0];
+  // Handle Multi-line stack traces (lines starting with tab or space)
+  if (!parsed && line.match(/^\s+(at|causetby|---)/i)) {
+    if (state.lastCluster) {
+      state.lastCluster.pattern += "\n" + line.trim();
+      return;
+    }
   }
 
-  const sevMatch = message.match(severityRegex);
-  if (sevMatch && severity === 'UNSTRUCTURED') {
-    severity = sevMatch[0].toUpperCase();
-    if (severity === 'WARNING') severity = 'WARN';
-    if (severity === 'FATAL' || severity === 'CRITICAL') severity = 'ERROR';
-  } else if (severity === 'UNSTRUCTURED') {
-    // Basic heuristic: if it looks terrifying, mark it as ERROR
-    if (/exception|failed|timeout|crash|traceback|panic/i.test(message)) severity = 'ERROR';
+  const severity = parsed ? parsed.severity : 'UNSTRUCTURED';
+  const timestamp = parsed ? parsed.timestamp : null;
+  const message = (parsed ? parsed.message : line).trim();
+
+  // Normalize Severity
+  let finalSeverity = severity;
+  if (finalSeverity === 'WARNING') finalSeverity = 'WARN';
+  if (['FATAL', 'CRITICAL', 'SEVERE', 'ALERT'].includes(finalSeverity)) finalSeverity = 'ERROR';
+
+  // Fallback heuristic for unstructured lines
+  if (finalSeverity === 'UNSTRUCTURED' && /exception|failed|timeout|crash|traceback|panic/i.test(message)) {
+    finalSeverity = 'ERROR';
   }
+
+  state.lastSeverity = finalSeverity;
 
   // Update stats
   stats.totalLogs++;
-  if (severity === 'ERROR') stats.errorCount++;
-  else if (severity === 'WARN') stats.warnCount++;
-  else if (severity === 'INFO' || severity === 'DEBUG') stats.infoCount++;
+  if (finalSeverity === 'ERROR') stats.errorCount++;
+  else if (finalSeverity === 'WARN') stats.warnCount++;
+  else if (finalSeverity === 'INFO' || finalSeverity === 'DEBUG' || finalSeverity === 'TRACE') stats.infoCount++;
   else stats.unstructuredCount++;
 
-  // Record timeline for graph
+  // Record timeline
   if (timestamp) {
     let dateObj = new Date(timestamp);
     if (!isNaN(dateObj.getTime())) {
-      let bucket = dateObj.toISOString().slice(0, 16); // Group by YYYY-MM-DDTHH:mm
+      let bucket = dateObj.toISOString().slice(0, 16);
       timeline[bucket] = (timeline[bucket] || 0) + 1;
     }
   }
 
-  // If severity implies it's an anomaly worth tracking
-  if (severity === 'ERROR' || severity === 'WARN') {
+  // Clustering
+  if (finalSeverity === 'ERROR' || finalSeverity === 'WARN') {
     const signature = generateSignature(message);
     if (!clusters[signature]) {
       clusters[signature] = {
         pattern: signature,
         count: 0,
-        severity: severity,
-        latestTimestamp: timestamp || new Date().toISOString()
+        severity: finalSeverity,
+        latestTimestamp: timestamp || new Date().toISOString(),
+        samples: []
       };
     }
     clusters[signature].count++;
-    if (timestamp) clusters[signature].latestTimestamp = timestamp; // Track the most recent hit
+    if (timestamp) clusters[signature].latestTimestamp = timestamp;
+    if (clusters[signature].samples.length < 5) {
+      clusters[signature].samples.push(message.substring(0, 500));
+    }
+    state.lastCluster = clusters[signature];
+  } else {
+    state.lastCluster = null;
   }
 }
 
@@ -195,6 +310,7 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
   const stats = { totalLogs: 0, errorCount: 0, warnCount: 0, infoCount: 0, unstructuredCount: 0 };
   const timeline = {};
   const clusters = {};
+  const state = { lastSeverity: 'INFO', lastCluster: null };
 
   const rl = readline.createInterface({
     input: fs.createReadStream(req.file.path),
@@ -209,7 +325,7 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     
     if (stats.totalLogs < MAX_LINES) {
       rawContentBuffer += line + "\n";
-      parseLine(line, stats, timeline, clusters);
+      parseLine(line, stats, timeline, clusters, state);
     } else {
       truncated = true;
       break; 
@@ -231,7 +347,7 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     datasets: [
       {
         label: "Errors",
-        data: sortedBuckets.map(b => timeline[b].errors || timeline[b] || 0), // handle generic increments
+        data: sortedBuckets.map(b => timeline[b].errors || timeline[b] || 0),
         borderColor: "#ef4444",
         backgroundColor: "rgba(239, 68, 68, 0.2)"
       },
@@ -244,11 +360,10 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     ]
   };
 
-  const aiSummary = generateMockAISummary(clustersArray, stats.unstructuredCount);
+  const aiSummary = await generateRealAISummary(clustersArray, stats);
   stats.truncated = truncated;
 
   try {
-    // Save to MySQL
     const savedSession = await LogSession.create({
       fileName,
       rawContent: rawContentBuffer, 
@@ -258,7 +373,6 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
       timeline: timelineFormatted
     });
 
-    // Respond with frontend compatible data
     res.status(201).json({
       _id: savedSession._id,
       fileName,
@@ -269,7 +383,7 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
       timeline: timelineFormatted
     });
   } catch (dbError) {
-    console.error("MongoDB Save Error:", dbError);
+    console.error("MySQL Save Error:", dbError);
     res.status(500).json({ error: "Failed to save analysis to database." });
   }
 });
@@ -285,8 +399,8 @@ app.post('/api/logs/raw', async (req, res) => {
     const stats = { totalLogs: 0, errorCount: 0, warnCount: 0, infoCount: 0, unstructuredCount: 0 };
     const timeline = {};
     const clusters = {};
+    const state = { lastSeverity: 'INFO', lastCluster: null };
 
-    // Transform raw text into a memory-safe stream
     const fileStream = Readable.from([text]);
     const rl = readline.createInterface({
       input: fileStream,
@@ -300,7 +414,7 @@ app.post('/api/logs/raw', async (req, res) => {
       if (!line.trim()) continue;
       
       if (stats.totalLogs < MAX_LINES) {
-        parseLine(line, stats, timeline, clusters);
+        parseLine(line, stats, timeline, clusters, state);
       } else {
         truncated = true;
         break;
@@ -330,7 +444,7 @@ app.post('/api/logs/raw', async (req, res) => {
       ]
     };
 
-    const aiSummary = generateMockAISummary(clustersArray, stats.unstructuredCount);
+    const aiSummary = await generateRealAISummary(clustersArray, stats);
     stats.truncated = truncated;
 
     const savedDoc = await LogSession.create({
