@@ -3,8 +3,8 @@
   "displayName": "AI Log Analyzer",
   "description": "High-fidelity local log analysis with pattern clustering and timeline visualization.",
   "version": "1.0.0",
-  "publisher": "logpulse",
-  "icon": "media/icon.svg",
+  "publisher": "SandipanSarkar",
+  "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -34,7 +34,7 @@
         {
           "id": "log-insight-explorer",
           "title": "Log Insight",
-          "icon": "media/icon.svg"
+          "icon": "media/icon.png"
         }
       ]
     },
