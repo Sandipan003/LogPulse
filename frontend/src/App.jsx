@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
-import { Activity, LayoutDashboard, BrainCircuit, SearchCode, Database, Settings as SettingsIcon, Trash2, HardDrive, Download, Search, Menu, X } from 'lucide-react';
+import { Activity, LayoutDashboard, BrainCircuit, SearchCode, Database, Settings as SettingsIcon, Trash2, HardDrive, Download, Search, Menu, X, LogOut } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import UploadZone from './components/UploadZone';
 import TimelineChart from './components/TimelineChart';
@@ -57,12 +57,16 @@ function App() {
   }, [activeView]);
 
   const handleLogout = () => {
+    const confirmation = window.confirm("Are you sure you want to terminate the current session?");
+    if (!confirmation) return;
+
     localStorage.removeItem('logpulse_token');
     localStorage.removeItem('logpulse_user');
     delete axios.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);
     setAnalysisResult(null);
     setHistoryData([]);
+    setIsLanding(true);
     setActiveView('upload');
     toast.success('Session Terminated');
   };
@@ -368,7 +372,7 @@ function App() {
                className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl hover:bg-red-500/20 hover:text-red-400 transition-all shadow-lg hover:shadow-red-500/10"
                title="Logout"
              >
-                <Database className="w-4 h-4 rotate-180" />
+                <LogOut className="w-4 h-4" />
              </button>
           </div>
         </header>
@@ -674,7 +678,7 @@ function App() {
                           </p>
                        </div>
                        <button onClick={handleLogout} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-black rounded-lg shadow-lg shadow-zinc-900/20 transition hover:-translate-y-0.5 border border-zinc-700 text-sm">
-                          <Activity className="w-5 h-5" /> Logout
+                          <LogOut className="w-5 h-5 text-red-500" /> Logout
                        </button>
                     </div>
                  </div>
