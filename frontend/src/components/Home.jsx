@@ -88,7 +88,7 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
 
                  {/* The Interactive Core Card */}
                  <div 
-                   onClick={() => setHeroMode('upload')}
+                   onClick={onGetStarted}
                    className="absolute inset-0 bg-gradient-to-br from-zinc-800/90 via-zinc-900 to-black border border-zinc-700/80 rounded-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden [transform:rotateX(2deg)_rotateY(-10deg)] group-hover:[transform:rotateX(0deg)_rotateY(0deg)] transition-all duration-700 cursor-pointer flex items-center justify-center z-20"
                  >
                     {/* Scanline Effect */}
