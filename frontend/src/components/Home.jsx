@@ -72,7 +72,10 @@ export default function Home({ onGetStarted, onLoginClick }) {
                <div className="absolute top-10 left-10 right-10 bottom-10 bg-zinc-800/20 border border-zinc-700/50 rounded-3xl skew-y-6 rotate-3 blur-[2px]"></div>
                
                {/* Interactive Component Mirror */}
-               <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/80 to-zinc-950 border border-zinc-700/80 rounded-3xl shadow-2xl overflow-hidden -rotate-6 skew-y-3 flex items-center justify-center group transition-transform duration-700 hover:rotate-0 hover:skew-y-0">
+               <div 
+                 onClick={onGetStarted}
+                 className="absolute inset-0 bg-gradient-to-br from-zinc-800/80 to-zinc-950 border border-zinc-700/80 rounded-3xl shadow-2xl overflow-hidden -rotate-6 skew-y-3 flex items-center justify-center group transition-transform duration-700 hover:rotate-0 hover:skew-y-0 cursor-pointer"
+               >
                   <div className="p-8 text-center space-y-4">
                      <div className="w-20 h-20 bg-brand-500/20 rounded-2xl flex items-center justify-center border border-brand-500/30 mx-auto animate-pulse">
                         <BarChart3 className="w-10 h-10 text-brand-400" />
