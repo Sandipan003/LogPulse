@@ -18,6 +18,7 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [pendingUpload, setPendingUpload] = useState(null);
+  const [isLanding, setIsLanding] = useState(true);
   
   // High-level navigation view
   const [activeView, setActiveView] = useState('upload'); // 'upload', 'dashboard', 'history', 'settings'
@@ -232,8 +233,8 @@ function App() {
     c.severity.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  // Root render logic
-  if (!isAuthenticated && !showLogin) {
+  // Root render logic: ALWAYS show Home first on fresh load
+  if (isLanding && !isAuthenticated && !showLogin) {
     return (
       <>
         <Toaster position="bottom-right" />
@@ -241,6 +242,29 @@ function App() {
           onGetStarted={() => setShowLogin(true)} 
           onLoginClick={() => setShowLogin(true)} 
           onUpload={handleFileUpload}
+          isProcessing={isProcessing}
+        />
+      </>
+    );
+  }
+
+  if (isLanding && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="bottom-right" />
+        <Home 
+          onGetStarted={() => {
+            setIsLanding(false);
+            setActiveView('upload');
+          }} 
+          onLoginClick={() => {
+            setIsLanding(false);
+            setActiveView('upload');
+          }} 
+          onUpload={(payload, type) => {
+            setIsLanding(false);
+            handleFileUpload(payload, type);
+          }}
           isProcessing={isProcessing}
         />
       </>
@@ -263,12 +287,13 @@ function App() {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           setIsAuthenticated(true);
           setShowLogin(false);
+          setIsLanding(false);
           
           if (pendingUpload) {
             handleFileUpload(pendingUpload.payload, pendingUpload.type);
             setPendingUpload(null);
           } else {
-            setActiveView('dashboard');
+            setActiveView('upload');
           }
         }} />
       </div>
