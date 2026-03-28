@@ -365,13 +365,27 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     .sort((a, b) => b.count - a.count)
     .slice(0, 20);
 
-  const sortedBuckets = Object.keys(timeline).sort().slice(-60);
+  const sortedBuckets = Object.keys(timeline).sort();
+  
+  // Add padding if range is too narrow (for better chart rendering)
+  if (sortedBuckets.length === 1) {
+    const single = sortedBuckets[0];
+    const d = new Date(single + ":00Z");
+    const before = new Date(d.getTime() - 60000).toISOString().slice(0, 16);
+    const after = new Date(d.getTime() + 60000).toISOString().slice(0, 16);
+    timeline[before] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
+    timeline[after] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
+    sortedBuckets.unshift(before);
+    sortedBuckets.push(after);
+  }
+
+  const finalBuckets = sortedBuckets.slice(-60);
   const timelineFormatted = {
-    labels: sortedBuckets,
+    labels: finalBuckets,
     datasets: [
       {
         label: "Total Logs",
-        data: sortedBuckets.map(b => timeline[b].total || 0),
+        data: finalBuckets.map(b => timeline[b].total || 0),
         borderColor: "#3b82f6",
         backgroundColor: "rgba(59, 130, 246, 0.2)"
       },
@@ -461,31 +475,45 @@ app.post('/api/logs/raw', async (req, res) => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 20);
 
-    const sortedBuckets = Object.keys(timeline).sort().slice(-60);
+    const sortedBuckets = Object.keys(timeline).sort();
+    
+    // Add padding if range is too narrow (for better chart rendering)
+    if (sortedBuckets.length === 1) {
+      const single = sortedBuckets[0];
+      const d = new Date(single + ":00Z");
+      const before = new Date(d.getTime() - 60000).toISOString().slice(0, 16);
+      const after = new Date(d.getTime() + 60000).toISOString().slice(0, 16);
+      timeline[before] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
+      timeline[after] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
+      sortedBuckets.unshift(before);
+      sortedBuckets.push(after);
+    }
+
+    const finalBuckets = sortedBuckets.slice(-60);
     const timelineFormatted = {
-      labels: sortedBuckets,
+      labels: finalBuckets,
       datasets: [
         {
           label: "Total Logs",
-          data: sortedBuckets.map(b => timeline[b].total || 0),
+          data: finalBuckets.map(b => timeline[b].total || 0),
           borderColor: "#3b82f6",
           backgroundColor: "rgba(59, 130, 246, 0.2)"
         },
         {
           label: "Errors",
-          data: sortedBuckets.map(b => timeline[b].errors || 0),
+          data: finalBuckets.map(b => timeline[b].errors || 0),
           borderColor: "#ef4444",
           backgroundColor: "rgba(239, 68, 68, 0.2)"
         },
         {
           label: "Warnings",
-          data: sortedBuckets.map(b => timeline[b].warnings || 0),
+          data: finalBuckets.map(b => timeline[b].warnings || 0),
           borderColor: "#f59e0b",
           backgroundColor: "rgba(245, 158, 11, 0.2)"
         },
         {
           label: "Unstructured",
-          data: sortedBuckets.map(b => timeline[b].unstructured || 0),
+          data: finalBuckets.map(b => timeline[b].unstructured || 0),
           borderColor: "#8b5cf6",
           backgroundColor: "rgba(139, 92, 246, 0.2)"
         }

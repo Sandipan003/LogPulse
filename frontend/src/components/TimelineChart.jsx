@@ -86,7 +86,7 @@ export default function TimelineChart({ timelineData }) {
         tension: 0.4 // smooth curve
       },
       point: {
-        radius: 0,
+        radius: 4,
         hitRadius: 10,
         hoverRadius: 6
       }
