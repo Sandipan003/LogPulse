@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
+}
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 antialiased selection:bg-brand-500/30;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+.glass-panel {
+  @apply bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 rounded-2xl shadow-2xl;
+}
+
+.glass-card {
+  @apply bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 rounded-xl shadow-lg hover:border-brand-500/30 transition-all duration-300;
+}
+
+.upload-zone-active {
+  @apply border-brand-500 bg-brand-500/5;
+}
+
+/* Custom scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-800 rounded-full border-[2px] border-zinc-950;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-700;
+}
+
+@keyframes scan {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(280px); opacity: 0; }
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
