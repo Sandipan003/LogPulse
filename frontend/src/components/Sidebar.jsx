@@ -52,7 +52,7 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-zinc-950 border-r border-zinc-800/80 flex flex-col pt-4 lg:pt-6 shrink-0 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-[20px_0_60px_rgba(0,0,0,0.8)]' : '-translate-x-full'}`}
       >
       
-      <div className="px-6 pb-6 border-b border-zinc-800/50 mt-4 md:mt-8 mb-6">
+      <div className="px-6 pb-4 border-b border-zinc-800/50 mt-4 mb-4">
         <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Workspace Control</h2>
         <nav className="space-y-1.5">
           <button 
@@ -76,7 +76,7 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
         </nav>
       </div>
 
-      <div className="px-6 pt-6 mt-8 md:mt-12 mb-8 flex-1 overflow-y-auto">
+      <div className="px-6 pt-2 mt-2 flex-1 overflow-y-auto custom-scrollbar">
         <div className="flex items-center justify-between mb-4 px-1">
           <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Previous Artifacts</h2>
           <button onClick={fetchSessions} className="text-zinc-600 hover:text-brand-400 transition-colors">
