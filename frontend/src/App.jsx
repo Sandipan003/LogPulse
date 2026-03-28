@@ -17,6 +17,7 @@ function App() {
   const [error, setError] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [pendingUpload, setPendingUpload] = useState(null);
   
   // High-level navigation view
   const [activeView, setActiveView] = useState('home'); // 'home', 'upload', 'dashboard', 'history', 'settings'
@@ -71,6 +72,17 @@ function App() {
     setAnalysisResult(null);
     setDbStatus('Uploading to MySQL...');
     
+    if (!isAuthenticated) {
+      setPendingUpload({ payload, type });
+      setShowLogin(true);
+      toast.error("Login required to process logs", {
+        icon: '🔒',
+        onClose: () => setIsProcessing(false)
+      });
+      setIsProcessing(false);
+      return;
+    }
+
     const loadingToast = toast.loading('Syncing with MySQL...', {
       style: { background: '#18181b', color: '#fff', border: '1px solid #27272a' }
     });
@@ -225,7 +237,12 @@ function App() {
     return (
       <>
         <Toaster position="bottom-right" />
-        <Home onGetStarted={() => setShowLogin(true)} onLoginClick={() => setShowLogin(true)} />
+        <Home 
+          onGetStarted={() => setShowLogin(true)} 
+          onLoginClick={() => setShowLogin(true)} 
+          onUpload={handleFileUpload}
+          isProcessing={isProcessing}
+        />
       </>
     );
   }
@@ -246,7 +263,13 @@ function App() {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           setIsAuthenticated(true);
           setShowLogin(false);
-          setActiveView('dashboard');
+          
+          if (pendingUpload) {
+            handleFileUpload(pendingUpload.payload, pendingUpload.type);
+            setPendingUpload(null);
+          } else {
+            setActiveView('dashboard');
+          }
         }} />
       </div>
     );

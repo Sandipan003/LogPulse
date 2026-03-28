@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Rocket, ShieldCheck, Zap, BarChart3, ArrowRight, Layers, Database, Activity, SearchCode, Inbox, BrainCircuit } from 'lucide-react';
+import UploadZone from './UploadZone';
 
-export default function Home({ onGetStarted, onLoginClick }) {
+export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessing }) {
+  const [heroMode, setHeroMode] = useState('visual'); // 'visual' or 'upload'
   return (
     <div className="min-h-screen bg-[#121416] text-white selection:bg-brand-500/30 overflow-x-hidden font-sans">
       {/* Navigation Bar */}
@@ -59,45 +62,62 @@ export default function Home({ onGetStarted, onLoginClick }) {
               >
                 Launch Engine
               </button>
-              <button className="px-8 py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all">
-                View Documentation
+              <button 
+                onClick={() => document.getElementById('precision-section').scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all"
+              >
+                View Features
               </button>
             </div>
           </div>
 
-          <div className="relative animate-in slide-in-from-right-8 duration-1000">
-            {/* 3D Floating Prism Component */}
-            <div className="relative w-full aspect-square max-w-lg mx-auto overflow-visible perspective-[1000px]">
-               {/* Back Layer */}
-               <div className="absolute top-10 left-10 right-10 bottom-10 bg-zinc-800/20 border border-zinc-700/50 rounded-3xl skew-y-6 rotate-3 blur-[2px]"></div>
-               
-               {/* Interactive Component Mirror */}
-               <div 
-                 onClick={onGetStarted}
-                 className="absolute inset-0 bg-gradient-to-br from-zinc-800/80 to-zinc-950 border border-zinc-700/80 rounded-3xl shadow-2xl overflow-hidden -rotate-6 skew-y-3 flex items-center justify-center group transition-transform duration-700 hover:rotate-0 hover:skew-y-0 cursor-pointer"
-               >
-                  <div className="p-8 text-center space-y-4">
-                     <div className="w-20 h-20 bg-brand-500/20 rounded-2xl flex items-center justify-center border border-brand-500/30 mx-auto animate-pulse">
-                        <BarChart3 className="w-10 h-10 text-brand-400" />
-                     </div>
-                     <p className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em]">Live Artifact Ingestion</p>
-                  </div>
-                  
-                  {/* Floating Tags */}
-                  <div className="absolute top-10 right-10 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[10px] font-black text-emerald-400 flex items-center gap-2">
-                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> SRE Active
-                  </div>
-                  <div className="absolute bottom-10 left-10 px-3 py-1.5 bg-brand-500/20 border border-brand-500/40 rounded-full text-[10px] font-black text-brand-400 flex items-center gap-2">
-                     <Database className="w-3 h-3" /> SQL Registry
-                  </div>
-               </div>
-            </div>
+          <div className="relative animate-in slide-in-from-right-8 duration-1000 min-h-[500px] flex items-center justify-center">
+            {heroMode === 'visual' ? (
+              /* 3D Floating Prism Component */
+              <div className="relative w-full aspect-square max-w-lg mx-auto overflow-visible perspective-[1000px]">
+                 {/* Back Layer */}
+                 <div className="absolute top-10 left-10 right-10 bottom-10 bg-zinc-800/20 border border-zinc-700/50 rounded-3xl skew-y-6 rotate-3 blur-[2px]"></div>
+                 
+                 {/* Interactive Component Mirror */}
+                 <div 
+                   onClick={() => setHeroMode('upload')}
+                   className="absolute inset-0 bg-gradient-to-br from-zinc-800/80 to-zinc-950 border border-zinc-700/80 rounded-3xl shadow-2xl overflow-hidden -rotate-6 skew-y-3 flex items-center justify-center group transition-transform duration-700 hover:rotate-0 hover:skew-y-0 cursor-pointer"
+                 >
+                    <div className="p-8 text-center space-y-4">
+                       <div className="w-20 h-20 bg-brand-500/20 rounded-2xl flex items-center justify-center border border-brand-500/30 mx-auto animate-pulse">
+                          <BarChart3 className="w-10 h-10 text-brand-400" />
+                       </div>
+                       <p className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em]">Click to Ingest Logs</p>
+                    </div>
+                    
+                    {/* Floating Tags */}
+                    <div className="absolute top-10 right-10 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[10px] font-black text-emerald-400 flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> SRE Active
+                    </div>
+                    <div className="absolute bottom-10 left-10 px-3 py-1.5 bg-brand-500/20 border border-brand-500/40 rounded-full text-[10px] font-black text-brand-400 flex items-center gap-2">
+                       <Database className="w-3 h-3" /> SQL Registry
+                    </div>
+                 </div>
+              </div>
+            ) : (
+              <div className="w-full animate-in zoom-in-95 duration-500">
+                <div className="flex justify-end mb-4">
+                  <button 
+                    onClick={() => setHeroMode('visual')}
+                    className="text-xs font-black text-zinc-500 hover:text-white uppercase tracking-widest flex items-center gap-2"
+                  >
+                    <ArrowRight className="w-3 h-3 rotate-180" /> Back to Visual
+                  </button>
+                </div>
+                <UploadZone onUpload={onUpload} isProcessing={isProcessing} />
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Precision Monitoring Section */}
-      <section className="px-6 py-32 bg-[#1a1c1e] relative">
+      <section id="precision-section" className="px-6 py-32 bg-[#1a1c1e] relative">
          <div className="max-w-7xl mx-auto space-y-16">
             <div className="space-y-4">
                <h2 className="text-4xl md:text-5xl font-black">Precision Monitoring</h2>
