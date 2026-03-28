@@ -70,29 +70,57 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
 
           <div className="relative animate-in slide-in-from-right-8 duration-1000 min-h-[500px] flex items-center justify-center">
             {heroMode === 'visual' ? (
-              /* 3D Floating Prism Component */
-              <div className="relative w-full aspect-square max-w-lg mx-auto overflow-visible perspective-[1000px]">
-                 {/* Back Layer */}
-                 <div className="absolute top-10 left-10 right-10 bottom-10 bg-zinc-800/20 border border-zinc-700/50 rounded-3xl skew-y-6 rotate-3 blur-[2px]"></div>
+              /* Kinetic Data Prism - Advanced 3D Component */
+              <div className="relative w-full aspect-square max-w-lg mx-auto overflow-visible [perspective:1200px] group">
+                 {/* Radial Underglow */}
+                 <div className="absolute inset-x-10 inset-y-10 bg-brand-500/10 rounded-full blur-[80px] animate-pulse"></div>
                  
-                 {/* Interactive Component Mirror */}
+                 {/* Back Holographic Panel */}
+                 <div className="absolute top-10 left-10 right-10 bottom-10 bg-zinc-800/20 border border-zinc-700/30 rounded-3xl [transform:translateZ(-100px)_rotateX(5deg)] skew-y-6 rotate-3 backdrop-blur-sm"></div>
+                 
+                 {/* Floating Data Nodes (Decorative) */}
+                 <div className="absolute -top-10 -right-10 w-24 h-24 bg-brand-500/10 border border-brand-500/20 rounded-2xl flex items-center justify-center animate-bounce duration-[3000ms] [transform:translateZ(50px)]">
+                    <Activity className="w-8 h-8 text-brand-400 opacity-50" />
+                 </div>
+                 <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center animate-bounce duration-[4000ms] [transform:translateZ(80px)]">
+                    <ShieldCheck className="w-6 h-6 text-emerald-400 opacity-50" />
+                 </div>
+
+                 {/* The Interactive Core Card */}
                  <div 
                    onClick={() => setHeroMode('upload')}
-                   className="absolute inset-0 bg-gradient-to-br from-zinc-800/80 to-zinc-950 border border-zinc-700/80 rounded-3xl shadow-2xl overflow-hidden -rotate-6 skew-y-3 flex items-center justify-center group transition-transform duration-700 hover:rotate-0 hover:skew-y-0 cursor-pointer"
+                   className="absolute inset-0 bg-gradient-to-br from-zinc-800/90 via-zinc-900 to-black border border-zinc-700/80 rounded-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden [transform:rotateX(2deg)_rotateY(-10deg)] group-hover:[transform:rotateX(0deg)_rotateY(0deg)] transition-all duration-700 cursor-pointer flex items-center justify-center z-20"
                  >
-                    <div className="p-8 text-center space-y-4">
-                       <div className="w-20 h-20 bg-brand-500/20 rounded-2xl flex items-center justify-center border border-brand-500/30 mx-auto animate-pulse">
-                          <BarChart3 className="w-10 h-10 text-brand-400" />
+                    {/* Scanline Effect */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none opacity-20"></div>
+                    
+                    {/* Animated Data Core */}
+                    <div className="relative p-12 text-center space-y-6">
+                       <div className="relative w-28 h-28 mx-auto">
+                          {/* Rotating Rings */}
+                          <div className="absolute inset-0 border-2 border-brand-500/30 rounded-2xl animate-[spin_10s_linear_infinite]"></div>
+                          <div className="absolute inset-2 border border-brand-500/20 rounded-2xl animate-[spin_7s_linear_infinite_reverse]"></div>
+                          
+                          <div className="absolute inset-0 bg-brand-500/20 rounded-2xl flex items-center justify-center border border-brand-500/30 shadow-[0_0_30px_rgba(0,242,255,0.2)]">
+                             <BarChart3 className="w-12 h-12 text-brand-400 animate-pulse" />
+                          </div>
                        </div>
-                       <p className="text-xs font-black uppercase text-zinc-500 tracking-[0.4em]">Click to Ingest Logs</p>
+                       
+                       <div className="space-y-2">
+                          <p className="text-[10px] font-black uppercase text-brand-400 tracking-[0.5em] animate-pulse">Live Data Core</p>
+                          <h3 className="text-xl font-black text-white px-4">CLICK TO INGEST LOGS</h3>
+                       </div>
                     </div>
                     
-                    {/* Floating Tags */}
-                    <div className="absolute top-10 right-10 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[10px] font-black text-emerald-400 flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> SRE Active
+                    {/* Glass Shine */}
+                    <div className="absolute -inset-[100%] bg-gradient-to-tr from-transparent via-white/5 to-transparent rotate-45 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+                    {/* Meta Info Overlays */}
+                    <div className="absolute top-8 right-8 px-3 py-1.5 bg-brand-500/20 border border-brand-500/40 rounded-full text-[10px] font-black text-brand-400 flex items-center gap-2 [transform:translateZ(120px)]">
+                       <div className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-ping"></div> SRE ACTIVE
                     </div>
-                    <div className="absolute bottom-10 left-10 px-3 py-1.5 bg-brand-500/20 border border-brand-500/40 rounded-full text-[10px] font-black text-brand-400 flex items-center gap-2">
-                       <Database className="w-3 h-3" /> SQL Registry
+                    <div className="absolute bottom-8 left-8 px-3 py-1.5 bg-zinc-900 border border-zinc-700 rounded-lg text-[10px] font-black text-zinc-400 flex items-center gap-2 [transform:translateZ(80px)]">
+                       <Database className="w-3 h-3 text-brand-400" /> SQL REGISTRY
                     </div>
                  </div>
               </div>
