@@ -8,6 +8,7 @@ import TimelineChart from './components/TimelineChart';
 import SeverityChart from './components/SeverityChart';
 import AnalysisPanel from './components/AnalysisPanel';
 import Login from './components/Login';
+import Home from './components/Home';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,7 +18,7 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // High-level navigation view
-  const [activeView, setActiveView] = useState('upload'); // 'upload', 'dashboard', 'history', 'settings'
+  const [activeView, setActiveView] = useState('home'); // 'home', 'upload', 'dashboard', 'history', 'settings'
   
   // Dashboard sub-tabs
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'deepdive', 'intelligence'
@@ -305,6 +306,10 @@ function App() {
 
         <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 md:space-y-8">
           
+          {activeView === 'home' && (
+            <Home onGetStarted={() => setActiveView('upload')} />
+          )}
+
           {activeView === 'upload' && (
             <div className="min-h-[50vh] lg:min-h-[70vh] flex flex-col justify-center items-center px-4">
               <div className="text-center mb-8 lg:mb-12 max-w-3xl mx-auto space-y-3 md:space-y-4">

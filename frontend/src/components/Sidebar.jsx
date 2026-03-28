@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Clock, HardDrive, Inbox, Settings, Loader2, Database } from 'lucide-react';
+import { Clock, HardDrive, Inbox, Settings, Loader2, Database, Home } from 'lucide-react';
 
 export default function Sidebar({ onSelectSession, activeSessionId, activeView, onNavigate, isOpen, onClose }) {
   const [sessions, setSessions] = useState([]);
@@ -55,6 +55,12 @@ export default function Sidebar({ onSelectSession, activeSessionId, activeView, 
       <div className="px-6 pb-4 border-b border-zinc-800/50 mt-4 mb-4">
         <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Workspace Control</h2>
         <nav className="space-y-1.5">
+          <button 
+            onClick={() => { onNavigate('home'); onClose?.(); }}
+            className={`w-full flex items-center gap-3 px-3 py-3 lg:py-2.5 rounded-lg transition-all ${activeView === 'home' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'}`}>
+            <Home className="w-5 h-5 text-brand-400" />
+            <span className="font-bold text-sm">Home</span>
+          </button>
           <button 
             onClick={() => { onNavigate('upload'); onClose?.(); }}
             className={`w-full flex items-center gap-3 px-3 py-3 lg:py-2.5 rounded-lg transition-all ${activeView === 'upload' || activeView === 'dashboard' ? 'bg-zinc-800 text-white shadow-inner border border-zinc-700' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'}`}>
