@@ -45,12 +45,12 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter">
-              Log Analysis at the <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">Speed of Thought</span>
+              Don't Read Logs. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">Fix Them.</span>
             </h1>
             
             <p className="text-xs md:text-lg text-zinc-400 max-w-md md:max-w-lg font-medium leading-relaxed px-4 lg:px-0">
-              Transform noisy logs into actionable SRE intelligence with Google Gemini 1.5 Flash. Predict failures before they cascade.
+              Stop scrolling through millions of lines. Drop your logs, get a 3-second diagnosis, and receive an instant bash fix script. Built for high-velocity SREs.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-2 md:pt-4 w-full sm:w-auto px-6 sm:px-0">
