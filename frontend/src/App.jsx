@@ -25,7 +25,6 @@ function App() {
   
   const [historyData, setHistoryData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [proEnabled, setProEnabled] = useState(false);
   const [expandedClusterId, setExpandedClusterId] = useState(null);
 
   // Fetch history specifically for the History tab
@@ -620,26 +619,6 @@ function App() {
                        </div>
                        <button onClick={handleWipeDatabase} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-400 text-white font-black rounded-lg shadow-lg shadow-red-500/20 transition hover:-translate-y-0.5 text-sm">
                           <Trash2 className="w-5 h-5" /> Obliterate History
-                       </button>
-                    </div>
-                 </div>
-
-                 <div className="glass-panel p-8">
-                    <div className="flex justify-between items-start">
-                       <div>
-                          <h3 className="text-xl font-bold text-white mb-2">Enable Data Compression (Pro)</h3>
-                          <p className="text-zinc-400 max-w-xl">
-                            Automatically compress all unhashed `.log` strings into zip artifacts before committing to Sequelize to save storage capacity.
-                          </p>
-                       </div>
-                       <button 
-                         onClick={() => {
-                            setProEnabled(!proEnabled);
-                            toast.success(`Data Compression ${!proEnabled ? 'Enabled' : 'Disabled'}`);
-                         }}
-                         className={`relative w-16 h-8 rounded-full transition-colors duration-300 border ${proEnabled ? 'bg-brand-500 border-brand-400' : 'bg-zinc-800 border-zinc-700'}`}
-                       >
-                         <div className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 ${proEnabled ? 'translate-x-8' : ''}`}></div>
                        </button>
                     </div>
                  </div>
