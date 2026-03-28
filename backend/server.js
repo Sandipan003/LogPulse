@@ -258,11 +258,12 @@ function parseLine(line, stats, timeline, clusters, state = { lastSeverity: 'INF
   
   const bucket = dateObj.toISOString().slice(0, 16);
   if (!timeline[bucket]) {
-    timeline[bucket] = { total: 0, errors: 0, warnings: 0 };
+    timeline[bucket] = { total: 0, errors: 0, warnings: 0, unstructured: 0 };
   }
   timeline[bucket].total++;
   if (finalSeverity === 'ERROR') timeline[bucket].errors++;
   else if (finalSeverity === 'WARN') timeline[bucket].warnings++;
+  else if (finalSeverity === 'UNSTRUCTURED') timeline[bucket].unstructured++;
 
   // Clustering
   if (finalSeverity === 'ERROR' || finalSeverity === 'WARN') {
@@ -369,6 +370,12 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
     labels: sortedBuckets,
     datasets: [
       {
+        label: "Total Logs",
+        data: sortedBuckets.map(b => timeline[b].total || 0),
+        borderColor: "#3b82f6",
+        backgroundColor: "rgba(59, 130, 246, 0.2)"
+      },
+      {
         label: "Errors",
         data: sortedBuckets.map(b => timeline[b].errors || 0),
         borderColor: "#ef4444",
@@ -379,6 +386,12 @@ app.post('/api/logs', upload.single('file'), async (req, res) => {
         data: sortedBuckets.map(b => timeline[b].warnings || 0),
         borderColor: "#f59e0b",
         backgroundColor: "rgba(245, 158, 11, 0.2)"
+      },
+      {
+        label: "Unstructured",
+        data: sortedBuckets.map(b => timeline[b].unstructured || 0),
+        borderColor: "#8b5cf6",
+        backgroundColor: "rgba(139, 92, 246, 0.2)"
       }
     ]
   };
@@ -453,6 +466,12 @@ app.post('/api/logs/raw', async (req, res) => {
       labels: sortedBuckets,
       datasets: [
         {
+          label: "Total Logs",
+          data: sortedBuckets.map(b => timeline[b].total || 0),
+          borderColor: "#3b82f6",
+          backgroundColor: "rgba(59, 130, 246, 0.2)"
+        },
+        {
           label: "Errors",
           data: sortedBuckets.map(b => timeline[b].errors || 0),
           borderColor: "#ef4444",
@@ -463,6 +482,12 @@ app.post('/api/logs/raw', async (req, res) => {
           data: sortedBuckets.map(b => timeline[b].warnings || 0),
           borderColor: "#f59e0b",
           backgroundColor: "rgba(245, 158, 11, 0.2)"
+        },
+        {
+          label: "Unstructured",
+          data: sortedBuckets.map(b => timeline[b].unstructured || 0),
+          borderColor: "#8b5cf6",
+          backgroundColor: "rgba(139, 92, 246, 0.2)"
         }
       ]
     };
