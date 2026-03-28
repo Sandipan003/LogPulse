@@ -15,10 +15,7 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <button className="text-sm font-bold text-brand-400 border-b-2 border-brand-400 pb-1">Engine</button>
-            <button className="text-sm font-bold text-zinc-500 hover:text-zinc-300 transition-colors">Docs</button>
-            <button className="text-sm font-bold text-zinc-500 hover:text-zinc-300 transition-colors">Pricing</button>
-            <button className="text-sm font-bold text-zinc-500 hover:text-zinc-300 transition-colors">Support</button>
+            {/* Navigation links removed as per request */}
           </div>
 
           <div className="flex items-center gap-4">
