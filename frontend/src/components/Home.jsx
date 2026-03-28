@@ -5,9 +5,9 @@ import UploadZone from './UploadZone';
 export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessing }) {
   const [heroMode, setHeroMode] = useState('visual'); // 'visual' or 'upload'
   return (
-    <div className="min-h-screen bg-[#121416] text-white selection:bg-brand-500/30 overflow-x-hidden font-sans">
+    <div className="h-screen w-full bg-[#121416] text-white selection:bg-brand-500/30 overflow-hidden font-sans flex flex-col">
       {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#121416]/80 backdrop-blur-md border-b border-zinc-800/50 px-6 py-4">
+      <nav className="shrink-0 bg-[#121416]/80 backdrop-blur-md border-b border-zinc-800/50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-6 h-6 text-brand-400 font-black" />
@@ -32,46 +32,50 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 px-6 max-w-7xl mx-auto overflow-hidden">
+      {/* Hero Section - Viewport Optimized */}
+      <section className="relative flex-1 px-6 max-w-7xl mx-auto w-full flex items-center overflow-hidden">
         {/* Glows */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px]"></div>
+        <div className="absolute top-1/4 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-500/5 rounded-full blur-[80px] md:blur-[120px]"></div>
+        <div className="absolute bottom-1/4 left-0 w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-emerald-500/5 rounded-full blur-[100px]"></div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="space-y-8 animate-in slide-in-from-left-8 duration-1000">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-[10px] font-black uppercase tracking-widest">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center justify-center relative z-10 w-full h-full pt-4 md:pt-0">
+          <div className="space-y-4 md:space-y-8 animate-in slide-in-from-left-8 duration-1000 text-center lg:text-left flex flex-col items-center lg:items-start">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-[10px] font-black uppercase tracking-widest leading-none">
                <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse"></span> NEXT-GEN SRE ENGINE
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter">
-              Log Analysis at the <span className="text-[#00f2ff]">Speed of Thought</span>
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter">
+              Log Analysis at the <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">Speed of Thought</span>
             </h1>
             
-            <p className="text-zinc-400 text-lg md:text-xl max-w-lg leading-relaxed font-medium">
+            <p className="text-xs md:text-lg text-zinc-400 max-w-md md:max-w-lg font-medium leading-relaxed px-4 lg:px-0">
               Transform noisy logs into actionable SRE intelligence with Google Gemini 1.5 Flash. Predict failures before they cascade.
             </p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 pt-2 md:pt-4 w-full sm:w-auto px-6 sm:px-0">
               <button 
                 onClick={onGetStarted}
-                className="px-8 py-4 bg-[#00f2ff] hover:bg-[#74f5ff] text-black font-black rounded-xl shadow-[0_0_30px_rgba(0,242,255,0.2)] transition-all hover:-translate-y-1"
+                className="w-full sm:w-auto px-8 py-3 md:py-4 bg-brand-500 hover:bg-brand-400 text-black font-black rounded-xl shadow-[0_0_30px_rgba(0,242,255,0.3)] transition-all hover:scale-105 active:scale-95 text-sm md:text-base"
               >
                 Launch Engine
               </button>
               <button 
-                onClick={() => document.getElementById('precision-section').scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all"
+                onClick={() => {
+                  const section = document.getElementById('precision-section');
+                  if (section) section.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="w-full sm:w-auto px-8 py-3 md:py-4 bg-zinc-800/50 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-700 transition-all text-sm md:text-base"
               >
                 View Features
               </button>
             </div>
           </div>
 
-          <div className="relative animate-in slide-in-from-right-8 duration-1000 min-h-[500px] flex items-center justify-center">
+          <div className="relative animate-in slide-in-from-right-8 duration-1000 flex items-center justify-center h-full min-h-0 py-4 lg:py-0">
             {heroMode === 'visual' ? (
               /* Kinetic Data Prism - Advanced 3D Component */
-              <div className="relative w-full aspect-square max-w-lg mx-auto overflow-visible [perspective:1200px] group">
+              <div className="relative w-full aspect-square max-w-[260px] sm:max-w-md lg:max-w-lg mx-auto overflow-visible [perspective:1200px] group scale-[0.85] sm:scale-100">
                  {/* Radial Underglow */}
                  <div className="absolute inset-x-10 inset-y-10 bg-brand-500/10 rounded-full blur-[80px] animate-pulse"></div>
                  
@@ -141,107 +145,7 @@ export default function Home({ onGetStarted, onLoginClick, onUpload, isProcessin
         </div>
       </section>
 
-      {/* Precision Monitoring Section */}
-      <section id="precision-section" className="px-6 py-32 bg-[#1a1c1e] relative">
-         <div className="max-w-7xl mx-auto space-y-16">
-            <div className="space-y-4">
-               <h2 className="text-4xl md:text-5xl font-black">Precision Monitoring</h2>
-               <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Engineered for architecture-aware SRE workflows</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               {[
-                  { title: "AI Diagnostics", desc: "Powered by Gemini, identifies absolute root causes and generates remediation.", icon: BrainCircuit, color: "text-brand-400", bg: "bg-brand-500/10" },
-                  { title: "Multi-Format Ingestion", desc: "Native support for Nginx, Spring Boot, and JSON. No complex regex required.", icon: Inbox, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-                  { title: "SQL Persistence", desc: "Every analysis is permanently registered for historical auditing and comparison.", icon: Database, color: "text-blue-400", bg: "bg-blue-500/10" },
-                  { title: "Evidence Visualization", desc: "Interactive density charts specifically mapped for precise incident visibility.", icon: BarChart3, color: "text-indigo-400", bg: "bg-indigo-500/10" }
-               ].map((f, i) => (
-                  <div key={i} className="bg-[#121416] p-8 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition-all hover:-translate-y-2 group">
-                     <div className={`w-12 h-12 ${f.bg} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                        <f.icon className={`w-6 h-6 ${f.color}`} />
-                     </div>
-                     <h3 className="text-xl font-bold mb-3">{f.title}</h3>
-                     <p className="text-zinc-500 text-sm leading-relaxed">{f.desc}</p>
-                  </div>
-               ))}
-            </div>
-         </div>
-      </section>
-
-      {/* The Kinetic Pipeline */}
-      <section className="px-6 py-32 max-w-7xl mx-auto text-center space-y-24">
-         <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter">The Kinetic Pipeline</h2>
-            <p className="text-zinc-500 text-sm font-medium">From raw data to remediation in three phases.</p>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
-            <div className="hidden md:block absolute top-[44px] left-[20%] right-[20%] h-px bg-zinc-800"></div>
-            
-            <div className="flex flex-col items-center space-y-6">
-               <div className="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center shadow-2xl relative z-10">
-                  <Inbox className="w-10 h-10 text-brand-400" />
-               </div>
-               <div>
-                  <h4 className="text-xl font-bold mb-1">Drop</h4>
-                  <p className="text-zinc-500 text-sm">Upload raw log files or pending analytics for instant processing.</p>
-               </div>
-            </div>
-
-            <div className="flex flex-col items-center space-y-6">
-               <div className="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center shadow-2xl relative z-10">
-                  <BrainCircuit className="w-10 h-10 text-emerald-400" />
-               </div>
-               <div>
-                  <h4 className="text-xl font-bold mb-1">Cluster</h4>
-                  <p className="text-zinc-500 text-sm">AI groups disparate failures into logical pattern-hushed SRE components.</p>
-               </div>
-            </div>
-
-            <div className="flex flex-col items-center space-y-6">
-               <div className="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center shadow-2xl relative z-10">
-                  <ShieldCheck className="w-10 h-10 text-blue-400" />
-               </div>
-               <div>
-                  <h4 className="text-xl font-bold mb-1">Resolve</h4>
-                  <p className="text-zinc-500 text-sm">Receive generated bash fix scripts and remediation steps immediately.</p>
-               </div>
-            </div>
-         </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="px-6 py-32 bg-zinc-950/80 border-t border-zinc-900">
-         <div className="max-w-4xl mx-auto text-center space-y-12">
-            <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-tight">Ready to reduce your <span className="text-brand-400">MTTD?</span></h2>
-            <p className="text-zinc-400 text-lg opacity-80">Join high-velocity engineering teams using LogPulse to maintain zero-downtime environments.</p>
-            <button 
-              onClick={onGetStarted}
-              className="px-12 py-5 bg-[#74f5ff] hover:bg-[#00f2ff] text-black font-black text-lg rounded-full shadow-[0_0_50px_rgba(0,242,255,0.3)] transition-all hover:scale-105 active:scale-95"
-            >
-               Get Started Now
-            </button>
-         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="px-6 py-12 border-t border-zinc-900">
-         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-2 grayscale group-hover:grayscale-0 transition-all">
-               <Activity className="w-5 h-5 text-zinc-500" />
-               <span className="text-zinc-500 font-black uppercase text-sm tracking-tighter">LogPulse</span>
-            </div>
-            
-            <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-600">
-               <button className="hover:text-zinc-400">Privacy Policy</button>
-               <button className="hover:text-zinc-400">Terms of Service</button>
-               <button className="hover:text-zinc-400">API Status</button>
-               <button className="hover:text-zinc-400">Twitter</button>
-            </div>
-
-            <p className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">© 2026 LOGPULSE INC. ATHLETICS FOR DATA.</p>
-         </div>
-      </footer>
     </div>
   );
 }
+
