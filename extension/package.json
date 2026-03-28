@@ -27,6 +27,13 @@
           "when": "resourceExtname =~ /\\.(log|txt|json|csv)$/",
           "group": "navigation"
         }
+      ],
+      "editor/title/context": [
+        {
+          "command": "ai-log-analyzer.analyzeFile",
+          "when": "resourceExtname =~ /\\.(log|txt|json|csv)$/",
+          "group": "navigation"
+        }
       ]
     },
     "viewsContainers": {
